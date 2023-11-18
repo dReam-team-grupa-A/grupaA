@@ -17,3 +17,6 @@ studia online, semestr zimowy, testtest/mf
 
 #jezu co sie dzieje 
 #a tu widac? 
+
+teraz jest elegancko!! 
+=======
