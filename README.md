@@ -5,3 +5,5 @@ Projekt na przedmiot Analiza Danych studia Analityka Gospodarcza, PG, semestr I,
 coś ekstra
 
 kolejna super zmiana
+
+mam nadzieje że teraz super
