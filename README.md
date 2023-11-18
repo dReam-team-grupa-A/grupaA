@@ -11,3 +11,4 @@ mam nadzieje że teraz super
 =======
 studia online, semestr zimowy, testtest/mf
 sprawdzam jeszcze raz 
+aaa
