@@ -10,10 +10,4 @@ kolejna super zmiana
 mam nadzieje że teraz super
 =======
 studia online, semestr zimowy, testtest/mf
->>>>>>> 9e1adc5a54fffcdd610a104dee8dc659d646d65e
-
-
-
-
-#jezu co sie dzieje 
-#a tu widac? 
+sprawdzam jeszcze raz 
