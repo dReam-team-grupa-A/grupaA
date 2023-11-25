@@ -1,0 +1,5 @@
+## wprowadzenie
+## czyszczenie danych
+### brakujące informacje
+### obserwacje odstające 
+### Walidacja danych
