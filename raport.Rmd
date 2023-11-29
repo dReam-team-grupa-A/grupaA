@@ -3,3 +3,32 @@
 ### brakujące informacje
 ### obserwacje odstające 
 ### Walidacja danych
+
+# reguła taka jak jest spacja po nazwie i nie lapie w danych 
+# kategoria=
+# %in% c("jakieś nazwy")
+
+
+
+
+ls()
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "price"] <- "Cena"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "area"] <- "Powierzchnia"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bedrooms"] <- "Pokoje"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bathrooms"] <- "Lazienki"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "stories"] <- "Pietra"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "mainroad"] <- "DrogaGlowna"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "guestroom"] <- "PokojGoscinny"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "basement"] <- "Piwnica"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "hotwaterheating"] <- "OgrzewanaWoda"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "airconditioning"] <- "Klimatyzacja"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "parking"] <- "Parking"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "prefarea"] <- "PrefObszar"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "furnishingstatus"] <- "Umeblowanie"
+
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "OgraewanaWoda"] <- "OgrzewanaWoda"
+colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "pokoje"] <- "Pokoje"
+
+
+
+
