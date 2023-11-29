@@ -1,39 +1,39 @@
 # grupaA
 
-Projekt na przedmiot Analiza Danych studia Analityka Gospodarcza, PG, semestr I, niestacjonarne, ONLINE
+# wprowadzenie danych
 
-<<<<<<< HEAD
-coś ekstra
+library(readr) agencja_nieruchomosci \<- read_csv("agencja_nieruchomosci-20231118T160815Z-001/agencja_nieruchomosci/agencja_nieruchomosci.csv") View(agencja_nieruchomosci)
 
-kolejna super zmiana
+## zmiana stop kwadratowych na metry kwadratowe
 
-mam nadzieje że teraz super
-=======
-studia online, semestr zimowy, testtest/mf
-<<<<<<< HEAD
-sprawdzam jeszcze raz 
-aaa
-=======
->>>>>>> 9e1adc5a54fffcdd610a104dee8dc659d646d65e
+agencja_nieruchomosci$area_m2 <- agencja_nieruchomosci$area * 0.092903
+
+#zaokraglenie do dwoch miejsc po przecinku
+agencja_nieruchomosci$area_m2 <- round(agencja_nieruchomosci$area_m2, 2)
+
+## Dodawanie kolumny z ceną za metr kwadratowy
+agencja_nieruchomosci$Price_per_m2 <- agencja_nieruchomosci$price / agencja_nieruchomosci$area_m2
+
+# Zaokrąglanie wartości w kolumnie "Price_per_m2" do dwóch miejsc po przecinku
+agencja_nieruchomosci$Price_per_m2 <- round(agencja_nieruchomosci$Price_per_m2, 2)
 
 
 
 
-#jezu co sie dzieje 
-#a tu widac? 
 
-teraz jest elegancko!! 
-=======
->>>>>>> c1fc0d09e8526009fb8c55b59e0c8e056c667d99
-supeer, mogę wpisać do cv że jestem starszym specjalistą od R 
 
-## Wprowadzenie 
+# Wyświetlenie zmodyfikowanych danych
 
-## Czyszczenie danych 
+View(agencja_nieruchomosci)
 
-### Brakujace obserwacje 
+##--------------------
 
-### Obserwacje odstające 
+## Wprowadzenie
 
-### Walidacja danych 
+## Czyszczenie danych
 
+### Brakujace obserwacje
+
+### Obserwacje odstające
+
+### Walidacja danych
