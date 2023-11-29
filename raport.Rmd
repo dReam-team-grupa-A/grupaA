@@ -3,3 +3,7 @@
 ### brakujące informacje
 ### obserwacje odstające 
 ### Walidacja danych
+
+# reguła taka jak jest spacja po nazwie i nie lapie w danych 
+# kategoria=
+# %in% c("jakieś nazwy")
