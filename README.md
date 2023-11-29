@@ -17,7 +17,7 @@ agencja_nieruchomosci$Price_per_m2 <- agencja_nieruchomosci$price / agencja_nier
 # Zaokrąglanie wartości w kolumnie "Price_per_m2" do dwóch miejsc po przecinku
 agencja_nieruchomosci$Price_per_m2 <- round(agencja_nieruchomosci$Price_per_m2, 2)
 
-
+#zmiana na test
 
 
 
