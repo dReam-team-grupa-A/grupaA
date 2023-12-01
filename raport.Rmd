@@ -41,3 +41,4 @@ agencja_nieruchomosci$powierzchnia_m2 <- agencja_nieruchomosci$Powierzchnia * 0.
 ## Dodawanie kolumny z ceną za metr kwadratowy
 agencja_nieruchomosci$cena_za_m2 <- agencja_nieruchomosci$Cena / agencja_nieruchomosci$powierzchnia_m2
 
+#jakaś zmiana 
