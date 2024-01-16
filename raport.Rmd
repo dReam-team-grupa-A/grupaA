@@ -42,3 +42,100 @@ agencja_nieruchomosci$powierzchnia_m2 <- agencja_nieruchomosci$Powierzchnia * 0.
 agencja_nieruchomosci$cena_za_m2 <- agencja_nieruchomosci$Cena / agencja_nieruchomosci$powierzchnia_m2
 
 #jakaś zmiana 
+
+## "zabawa danymi" 
+#ile jakich pokoi 
+
+liczba_pokoi <- table(agencja_nieruchomosci$Pokoje)
+najmniej_pokoi <- min(agencja_nieruchomosci$Pokoje)
+najwiecej_pokoi <- max(agencja_nieruchomosci$Pokoje)
+
+cat("Najmniej pokoi:", najmniej_pokoi, "\n")
+cat("Najwięcej pokoi:", najwiecej_pokoi, "\n")
+
+#Najmniej pokoi: 1
+#Najwięcej pokoi: 6 
+
+# zależność ceny od liczby pokoi 
+model1 <- lm(Cena ~ Pokoje, data = agencja_nieruchomosci)
+summary(model)
+
+
+#Call:
+#lm(formula = Cena ~ Pokoje, data = agencja_nieruchomosci)
+
+#Residuals:
+#     Min       1Q   Median       3Q      Max 
+#-4696685 -1210321  -265321   940891  7572103 
+
+#Coefficients:
+#            Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)  2012745     309175   6.510 1.71e-10 ***
+#Pokoje        928788     101188   9.179  < 2e-16 ***
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 1742000 on 543 degrees of freedom
+#Multiple R-squared:  0.1343,	Adjusted R-squared:  0.1327 
+#F-statistic: 84.25 on 1 and 543 DF,  p-value: < 2.2e-16
+
+#Rsquare małe, wiec pokoje niby nie mają wielkiego znaczenia jesli chodzi o cene 
+
+#zmiana w kolumnie umeblowanie (furnished=1, unfurnished=0) 
+agencja_nieruchomosci$Umeblowanie = ifelse(agencja_nieruchomosci$Umeblowanie == "furnished", 1, 0)
+
+#o ile średnio wyższa jest cena za m2 w mieszkaniu umeblowanym niż w mieszkaniu nieumeblowanym
+
+srednia_umeblowane <- mean(agencja_nieruchomosci$cena_za_m2[agencja_nieruchomosci$Umeblowanie == 1])
+srednia_nieumeblowane <- mean(agencja_nieruchomosci$cena_za_m2[agencja_nieruchomosci$Umeblowanie == 0])
+
+roznica_srednich <- srednia_umeblowane - srednia_nieumeblowane
+
+cat("Średnia cena za m² w mieszkaniach umeblowanych:", srednia_umeblowane, "\n")
+cat("Średnia cena za m² w mieszkaniach nieumeblowanych:", srednia_nieumeblowane, "\n")
+cat("Różnica średnich cen za m²:", roznica_srednich, "\n")
+
+#Różnica średnich cen za m²: 772.5753  w mieszkaniu umeblowanym a nieumeblowanym 
+
+
+#dla jakiego piętra ceny są największe 
+# Obliczenie średnich cen za m² dla każdego piętra
+srednie_ceny <- aggregate(cena_za_m2 ~ Pietra, data = agencja_nieruchomosci, FUN = mean)
+
+# Znalezienie piętra z największą średnią ceną za m²
+pietro_najwieksza_cena <- srednie_ceny$Pietra[which.max(srednie_ceny$cena_za_m2)]
+
+# Wyświetlenie wyniku
+cat("Dla piętra", pietro_najwieksza_cena, "cena za m² jest największa.\n")
+
+
+## Dla piętra 3 cena za m² jest największa.
+
+## cena za m^2 czy zależy od dostępnosci do drogi głónej 
+# Podział danych na dwie grupy: z dostępem do drogi głównej i bez dostępu
+cena_z_dostepem <- agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "yes"]
+cena_bez_dostepu <- agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "no"]
+# Test t-Studenta
+test_t <- t.test(cena_z_dostepem, cena_bez_dostepu)
+# Wyświetlenie wyniku testu
+print(test_t)
+
+#p-value < 2.2e-16 to znaczy że w dużej mierze dostęp do drogi wpływa na cenę
+
+srednia_cena_z_dostepem <- mean(agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "yes"])
+srednia_cena_bez_dostepu <- mean(agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "no"])
+
+# Obliczenie różnicy średnich cen
+roznica_srednich_cen <- srednia_cena_z_dostepem - srednia_cena_bez_dostepu
+
+# Wyświetlenie wyników
+cat("Średnia cena dla domów z dostępem do drogi głównej:", srednia_cena_z_dostepem, "\n")
+cat("Średnia cena dla domów bez dostępu do drogi głównej:", srednia_cena_bez_dostepu, "\n")
+cat("Różnica średnich cen:", roznica_srednich_cen, "\n")
+
+#Średnia cena dla domów z dostępem do drogi głównej: 4991777 
+#> cat("Średnia cena dla domów bez dostępu do drogi głównej:", srednia_cena_bez_dostepu, "\n")
+#Średnia cena dla domów bez dostępu do drogi głównej: 3398905 
+#> cat("Różnica średnich cen:", roznica_srednich_cen, "\n")
+#Różnica średnich cen: 1592873 
+
