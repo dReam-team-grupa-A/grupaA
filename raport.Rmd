@@ -127,3 +127,4 @@ Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniające
 mm
 =======
 >>>>>>> 7a14405db7fa9d120d7e8cc849d059b5897512ee
+mm2
