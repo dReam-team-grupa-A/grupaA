@@ -4,7 +4,3 @@ Projekt na przedmiot Analiza Danych na kierunku Analityka Gospodarcza, PG, semes
 
 Joanna Bartos 201054
 Magdalena Flak 173642
-
-
-
-

@@ -73,6 +73,7 @@ dim(dane)
 ```
 
 Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych.
+<<<<<<< HEAD
 
 # Przygotowanie danych
 Rozpoczynamy od sprawdzenia poprawności danych i dokowania ewentualnych poprawek. W pierwszym kroku sprawdzamy czy w bazie występują jakieś braki danych.
@@ -124,3 +125,5 @@ W rozkładzie dobrze widoczna jest asymetria prawostronna (wydłużona ramię z 
 
 Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniającej rozpatrzymy je wspólnie.
 mm
+=======
+>>>>>>> 7a14405db7fa9d120d7e8cc849d059b5897512ee
