@@ -1,141 +1,125 @@
-## wprowadzenie
-## czyszczenie danych
-### brakujące informacje
-### obserwacje odstające 
-### Walidacja danych
+---
+title: "Agencja nieruchomości"
+author: "grupaA"
+output: html_document
+---
 
+```{r, include = FALSE}
+# instalacja (jeśli potrzeba) i załadowanie niezbędnych pakietów
+if (!require(knitr)) install.packages("knitr")
+library(knitr)
+if (!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+if (!require(gridExtra)) install.packages("gridExtra")
+library(gridExtra)
+if (!require(psych)) install.packages("psych")
+library(psych)
+if (!require(MASS)) install.packages("MASS")
+library(MASS)
 
-## wgranie danych 
-library(readr)
-agencja_nieruchomosci <- read_csv("agencja_nieruchomosci-20231118T160815Z-001/agencja_nieruchomosci/agencja_nieruchomosci.csv")
-View(agencja_nieruchomosci)
+# szerokość wydruku
+options(width = 150)
+```
 
-# reguła taka jak jest spacja po nazwie i nie lapie w danych 
-# kategoria=
-# %in% c("jakieś nazwy")
+# Wstęp
+## Opis problemu
+Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. Narzędziem mającym to umożliwić będzie **model regresji**.
 
-ls()
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "price"] <- "Cena"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "area"] <- "Powierzchnia"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bedrooms"] <- "Pokoje"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bathrooms"] <- "Lazienki"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "stories"] <- "Pietra"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "mainroad"] <- "DrogaGlowna"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "guestroom"] <- "PokojGoscinny"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "basement"] <- "Piwnica"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "hotwaterheating"] <- "OgrzewanaWoda"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "airconditioning"] <- "Klimatyzacja"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "parking"] <- "Parking"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "prefarea"] <- "PrefObszar"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "furnishingstatus"] <- "Umeblowanie"
+## Baza danych
+Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "OgraewanaWoda"] <- "OgrzewanaWoda"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "pokoje"] <- "Pokoje"
+```{r}
+# wczytanie danych
+dane <- read.csv("agencja_nieruchomosci.csv")
 
+# wyświetlenie pierwszych wierszy danych
+kable(head(dane))
+```
 
-## zmiana stop kwadratowych na metry kwadratowe
+## Zmienne
+Zmienną objaśnianą jest zmienna:
 
-agencja_nieruchomosci$powierzchnia_m2 <- agencja_nieruchomosci$Powierzchnia * 0.092903
+- **price** - cena nieruchomości w dolarach
 
+Zmienne objaśniające to parametry techniczne danej nieruchomości:
 
-## Dodawanie kolumny z ceną za metr kwadratowy
-agencja_nieruchomosci$cena_za_m2 <- agencja_nieruchomosci$Cena / agencja_nieruchomosci$powierzchnia_m2
+- **area** - całkowita powierzchnia domu w stopach kwadratowych
 
-#jakaś zmiana 
+- **bedrooms** - liczba sypialni w domu
 
-## "zabawa danymi" 
-#ile jakich pokoi 
+- **bathrooms** - liczba łazienek w domu
 
-liczba_pokoi <- table(agencja_nieruchomosci$Pokoje)
-najmniej_pokoi <- min(agencja_nieruchomosci$Pokoje)
-najwiecej_pokoi <- max(agencja_nieruchomosci$Pokoje)
+- **stories** - liczba pięter w domu
 
-cat("Najmniej pokoi:", najmniej_pokoi, "\n")
-cat("Najwięcej pokoi:", najwiecej_pokoi, "\n")
+- **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
 
-#Najmniej pokoi: 1
-#Najwięcej pokoi: 6 
+- **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
 
-# zależność ceny od liczby pokoi 
-model1 <- lm(Cena ~ Pokoje, data = agencja_nieruchomosci)
-summary(model)
+- **basement** - czy dom jest podpiwniczony (Tak/Nie)
 
+- **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
 
-#Call:
-#lm(formula = Cena ~ Pokoje, data = agencja_nieruchomosci)
+- **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
 
-#Residuals:
-#     Min       1Q   Median       3Q      Max 
-#-4696685 -1210321  -265321   940891  7572103 
+- **parking** - liczba miejsc parkingowych dostępnych w budynku
 
-#Coefficients:
-#            Estimate Std. Error t value Pr(>|t|)    
-#(Intercept)  2012745     309175   6.510 1.71e-10 ***
-#Pokoje        928788     101188   9.179  < 2e-16 ***
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+- **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
 
-#Residual standard error: 1742000 on 543 degrees of freedom
-#Multiple R-squared:  0.1343,	Adjusted R-squared:  0.1327 
-#F-statistic: 84.25 on 1 and 543 DF,  p-value: < 2.2e-16
+- **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
 
-#Rsquare małe, wiec pokoje niby nie mają wielkiego znaczenia jesli chodzi o cene 
+```{r}
+# wymiary bazy danych
+dim(dane)
+```
 
-#zmiana w kolumnie umeblowanie (furnished=1, unfurnished=0) 
-agencja_nieruchomosci$Umeblowanie = ifelse(agencja_nieruchomosci$Umeblowanie == "furnished", 1, 0)
+Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych.
 
-#o ile średnio wyższa jest cena za m2 w mieszkaniu umeblowanym niż w mieszkaniu nieumeblowanym
+# Przygotowanie danych
+Rozpoczynamy od sprawdzenia poprawności danych i dokowania ewentualnych poprawek. W pierwszym kroku sprawdzamy czy w bazie występują jakieś braki danych.
 
-srednia_umeblowane <- mean(agencja_nieruchomosci$cena_za_m2[agencja_nieruchomosci$Umeblowanie == 1])
-srednia_nieumeblowane <- mean(agencja_nieruchomosci$cena_za_m2[agencja_nieruchomosci$Umeblowanie == 0])
+```{r}
+# ilość braków danych dla poszczególnych zmiennych
+data.frame(braki = sapply(dane, function(x) sum(is.na(x))))
+```
 
-roznica_srednich <- srednia_umeblowane - srednia_nieumeblowane
+Nie ma żadnych braków danych. Sprawdźmy dalej jaki jest zakres osiąganych wartości dla zmiennych ilościowych.
 
-cat("Średnia cena za m² w mieszkaniach umeblowanych:", srednia_umeblowane, "\n")
-cat("Średnia cena za m² w mieszkaniach nieumeblowanych:", srednia_nieumeblowane, "\n")
-cat("Różnica średnich cen za m²:", roznica_srednich, "\n")
+```{r}
+# zakres osiąganych wartości dla zmiennych ilościowych
+describe(dane[,c(1:5,11)])[8:9]
+```
 
-#Różnica średnich cen za m²: 772.5753  w mieszkaniu umeblowanym a nieumeblowanym 
+Jak widać ceny osiągają tu milionowe wartości. Aby nie operować bardzo dużymi liczbami wyrazimy je w mln dolarów. Podobnie powierzchnię wyrazimy w tysiącach stóp kwadratowych.
 
+```{r}
+# przeliczenia wartości zmiennych price i area
+dane <- dane %>%
+  mutate(price = price/10^6,
+         area = area/10^3)
+```
 
-#dla jakiego piętra ceny są największe 
-# Obliczenie średnich cen za m² dla każdego piętra
-srednie_ceny <- aggregate(cena_za_m2 ~ Pietra, data = agencja_nieruchomosci, FUN = mean)
+# Analiza eksploracyjna
+Przystępujemy do analizy struktury poszczególnych zmiennych. Dla zmiennych jakościowych sporządzamy wykres słupkowy rozkładu procentowego, dla zmiennych ilościowych obliczamy podstawowe miary rozkładu i sporządzamy histogram.
 
-# Znalezienie piętra z największą średnią ceną za m²
-pietro_najwieksza_cena <- srednie_ceny$Pietra[which.max(srednie_ceny$cena_za_m2)]
+## Price
+Cena to zmienna ilościowa.
 
-# Wyświetlenie wyniku
-cat("Dla piętra", pietro_najwieksza_cena, "cena za m² jest największa.\n")
+```{r}
+# statystyki opisowe
+kable(describe(dane[,1])[c(2:5,8,9,11,12)])
+```
 
+Średnia cena badanych nieruchomości to 4,77 mln dolarów, przy czym ceny poszczególnych domów różnią się od średniej przeciętnie o 1,87 mln dolarów. Dla połowy nieruchomości cena nie przekracza 4,34 mln dolarów. Najniższa zaobserwowana wartość to 1,75, a najwyższa aż 13,3 mln dolarów. W rozkładzie występuje skrajna asymetria prawostronna, jest on też wyższy i smuklejszy od rozkładu normalnego.
 
-## Dla piętra 3 cena za m² jest największa.
+```{r, warning = FALSE}
+# histogram
+ggplot(dane, aes(x = price)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Price", 
+       x = " million dollars", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+```
 
-## cena za m^2 czy zależy od dostępnosci do drogi głónej 
-# Podział danych na dwie grupy: z dostępem do drogi głównej i bez dostępu
-cena_z_dostepem <- agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "yes"]
-cena_bez_dostepu <- agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "no"]
-# Test t-Studenta
-test_t <- t.test(cena_z_dostepem, cena_bez_dostepu)
-# Wyświetlenie wyniku testu
-print(test_t)
+W rozkładzie dobrze widoczna jest asymetria prawostronna (wydłużona ramię z prawej strony).
 
-#p-value < 2.2e-16 to znaczy że w dużej mierze dostęp do drogi wpływa na cenę
-
-srednia_cena_z_dostepem <- mean(agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "yes"])
-srednia_cena_bez_dostepu <- mean(agencja_nieruchomosci$Cena[agencja_nieruchomosci$DrogaGlowna == "no"])
-
-# Obliczenie różnicy średnich cen
-roznica_srednich_cen <- srednia_cena_z_dostepem - srednia_cena_bez_dostepu
-
-# Wyświetlenie wyników
-cat("Średnia cena dla domów z dostępem do drogi głównej:", srednia_cena_z_dostepem, "\n")
-cat("Średnia cena dla domów bez dostępu do drogi głównej:", srednia_cena_bez_dostepu, "\n")
-cat("Różnica średnich cen:", roznica_srednich_cen, "\n")
-
-#Średnia cena dla domów z dostępem do drogi głównej: 4991777 
-#> cat("Średnia cena dla domów bez dostępu do drogi głównej:", srednia_cena_bez_dostepu, "\n")
-#Średnia cena dla domów bez dostępu do drogi głównej: 3398905 
-#> cat("Różnica średnich cen:", roznica_srednich_cen, "\n")
-#Różnica średnich cen: 1592873 
-
+Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniającej rozpatrzymy je wspólnie.
