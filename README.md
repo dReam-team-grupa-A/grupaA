@@ -1,21 +1,10 @@
 # grupaA
 
-Projekt na przedmiot Analiza Danych studia Analityka Gospodarcza, PG, semestr I, niestacjonarne, ONLINE
+Projekt na przedmiot Analiza Danych na kierunku Analityka Gospodarcza, PG, semestr I, niestacjonarne, ONLINE
+
+Joanna Bartos 201054
+Magdalena Flak 173642
 
 
 
-
-
-# Przykład z dostosowanymi opcjami
-#dane <- read.csv("sciezka/do/twojego/pliku.csv", header = TRUE, sep = ";")
-
-## Wprowadzenie 
-
-## Czyszczenie danych 
-
-### Brakujace obserwacje 
-
-### Obserwacje odstające 
-
-### Walidacja danych 
 
