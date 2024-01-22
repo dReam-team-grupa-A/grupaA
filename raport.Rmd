@@ -123,3 +123,4 @@ ggplot(dane, aes(x = price)) +
 W rozkładzie dobrze widoczna jest asymetria prawostronna (wydłużona ramię z prawej strony).
 
 Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniającej rozpatrzymy je wspólnie.
+mm
