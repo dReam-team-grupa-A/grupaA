@@ -1,44 +1,75 @@
-## wprowadzenie
-## czyszczenie danych
-### brakujące informacje
-### obserwacje odstające 
-### Walidacja danych
+---
+title: "Agencja nieruchomości"
+author: "grupaA"
+output: html_document
+---
 
+```{r, include = FALSE}
+# instalacja (jeśli potrzeba) i załadowanie niezbędnych pakietów
+if (!require(knitr)) install.packages("knitr")
+library(knitr)
+if (!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
+if (!require(gridExtra)) install.packages("gridExtra")
+library(gridExtra)
+if (!require(psych)) install.packages("psych")
+library(psych)
+if (!require(MASS)) install.packages("MASS")
+library(MASS)
 
-## wgranie danych 
-library(readr)
-agencja_nieruchomosci <- read_csv("agencja_nieruchomosci-20231118T160815Z-001/agencja_nieruchomosci/agencja_nieruchomosci.csv")
-View(agencja_nieruchomosci)
+# szerokość wydruku
+options(width = 150)
+```
 
-# reguła taka jak jest spacja po nazwie i nie lapie w danych 
-# kategoria=
-# %in% c("jakieś nazwy")
+# Wstęp
+## Opis problemu
+Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. Narzędziem mającym to umożliwić będzie **model regresji**.
 
-ls()
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "price"] <- "Cena"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "area"] <- "Powierzchnia"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bedrooms"] <- "Pokoje"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "bathrooms"] <- "Lazienki"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "stories"] <- "Pietra"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "mainroad"] <- "DrogaGlowna"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "guestroom"] <- "PokojGoscinny"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "basement"] <- "Piwnica"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "hotwaterheating"] <- "OgrzewanaWoda"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "airconditioning"] <- "Klimatyzacja"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "parking"] <- "Parking"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "prefarea"] <- "PrefObszar"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "furnishingstatus"] <- "Umeblowanie"
+## Baza danych
+Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "OgraewanaWoda"] <- "OgrzewanaWoda"
-colnames(agencja_nieruchomosci)[colnames(agencja_nieruchomosci) == "pokoje"] <- "Pokoje"
+```{r}
+# wczytanie danych
+dane <- read.csv("agencja_nieruchomosci.csv")
 
+# wyświetlenie pierwszych wierszy danych
+kable(head(dane))
+```
 
-## zmiana stop kwadratowych na metry kwadratowe
+## Zmienne
+Zmienną objaśnianą jest zmienna:
 
-agencja_nieruchomosci$powierzchnia_m2 <- agencja_nieruchomosci$Powierzchnia * 0.092903
+- **price** - cena nieruchomości w dolarach
 
+Zmienne objaśniające to parametry techniczne danej nieruchomości:
 
-## Dodawanie kolumny z ceną za metr kwadratowy
-agencja_nieruchomosci$cena_za_m2 <- agencja_nieruchomosci$Cena / agencja_nieruchomosci$powierzchnia_m2
+- **area** - całkowita powierzchnia domu w stopach kwadratowych
 
-#jakaś zmiana 
+- **bedrooms** - liczba sypialni w domu
+
+- **bathrooms** - liczba łazienek w domu
+
+- **stories** - liczba pięter w domu
+
+- **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
+
+- **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
+
+- **basement** - czy dom jest podpiwniczony (Tak/Nie)
+
+- **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
+
+- **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
+
+- **parking** - liczba miejsc parkingowych dostępnych w budynku
+
+- **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
+
+- **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
+
+```{r}
+# wymiary bazy danych
+dim(dane)
+```
+
+Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych.
