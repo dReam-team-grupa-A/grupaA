@@ -124,3 +124,49 @@ ggplot(dane, aes(x = price)) +
 W rozkładzie dobrze widoczna jest asymetria prawostronna (wydłużona ramię z prawej strony).
 
 Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniającej rozpatrzymy je wspólnie.
+
+## Ilościowe zmienne objaśniające
+
+```{r}
+# statystyki opisowe
+kable(describe(dane[,c(2:5,11)])[c(2:5,8,9,11,12)])
+```
+
+Wyniki interpretuje się analogicznie jak w przypadku ceny. 
+
+```{r, warning = FALSE}
+# histogramy
+plot1 <- ggplot(dane, aes(x = area)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Area", 
+       x = "thousand square feet", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot2 <- ggplot(dane, aes(x = bedrooms)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Bedrooms", 
+       x = "number", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot3 <- ggplot(dane, aes(x = bathrooms)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Bathrooms", 
+       x = "number", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot4 <- ggplot(dane, aes(x = stories)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Stories", 
+       x = "number", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot5 <- ggplot(dane, aes(x = parking)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Parking", 
+       x = "number", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+grid.arrange(plot1, plot2, plot3, plot4, plot5, nrow = 2)
+```
+
+W przypadku powierzchni również mamy asymetrię prawostronną. Pozostałe zmienne to zmienne skokowe (przyjmujące tylko całkowite wartości), przy tak małym zakresie osiąganych wartości można je też potraktować jak zmienne jakościowe.
