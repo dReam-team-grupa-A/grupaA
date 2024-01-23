@@ -170,3 +170,103 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, nrow = 2)
 ```
 
 W przypadku powierzchni również mamy asymetrię prawostronną. Pozostałe zmienne to zmienne skokowe (przyjmujące tylko całkowite wartości), przy tak małym zakresie osiąganych wartości można je też potraktować jak zmienne jakościowe.
+
+## Jakościowe zmienne objaśniające
+
+```{r,}
+# wykres słupkowy dla zmiennej mainroad
+tab <- as.data.frame(100*prop.table(table(dane$mainroad)))
+plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Mainroad",
+       y = "%")
+
+# wykres słupkowy dla zmiennej guestroom
+tab <- as.data.frame(100*prop.table(table(dane$guestroom)))
+plot2 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Guestroom",
+       y = "%")
+
+# wykres słupkowy dla zmiennej basement
+tab <- as.data.frame(100*prop.table(table(dane$basement)))
+plot3 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Basement",
+       y = "%")
+
+# wykres słupkowy dla zmiennej hotwaterheating
+tab <- as.data.frame(100*prop.table(table(dane$hotwaterheating)))
+plot4 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Hotwaterheating",
+       y = "%")
+
+# wykres słupkowy dla zmiennej airconditioning
+tab <- as.data.frame(100*prop.table(table(dane$airconditioning)))
+plot5 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Airconditioning",
+       y = "%")
+
+# wykres słupkowy dla zmiennej prefarea
+tab <- as.data.frame(100*prop.table(table(dane$prefarea)))
+plot6 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Prefarea",
+       y = "%")
+
+# wykres słupkowy dla zmiennej furnishingstatus
+tab <- as.data.frame(100*prop.table(table(dane$furnishingstatus)))
+plot7 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Furnishingstatus",
+       y = "%")
+
+# wykres wspólny
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
+```
+
+Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
