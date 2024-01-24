@@ -299,3 +299,39 @@ Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p>0,05 
 Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p<0,05 dla testu F).
 
 W powyższym modelu użyte zostały wszystkie dostępne zmienne objaśniające. Może powstać pytanie, czy jest to optymalny zestaw zmiennych. Ten możemy określić stosując metodę krokową doboru zmiennych (minimalizując wartość AIC).
+
+
+```{r}
+# metoda krokowa doboru zmiennych
+stepAIC(model, direction = "both")
+```
+
+Jak się okazuje jest to model optymalny.
+
+Wszystkie zmienne poza furnishingstatus dodatnio wpływają na cenę. Czym większa powierzchnia, liczba łazienek, dostępnośc piwnicy itp., tym oczywiście wyższa cena domu. Jedyne ujemne parametry dotyczą zmiennej furnishingstatus, ale jest to związane z użytymi kategoriami. Kategorią referencyjną jest tutaj "furnished", więc domy tylko częściowo umeblowane, lub nieumeblowane wcale osiągają niższą cenę, niż te w pełni umeblowane.
+
+Model wyjaśnia zmienność ceny w 68,18%, dopasowanie do danych jest umiarkowane.
+
+Modelu możemy oczywiście użyć następnie do prognozowania, np. do wyznaczenia ceny domu o interesujących nas parametrach.
+
+```{r}
+# prognoza
+predict(model, data.frame(area = 1, 
+                          bedrooms = 1,
+                          bathrooms = 1,
+                          stories = 1,
+                          mainroad = "no",
+                          guestroom = "no",
+                          basement = "no",
+                          hotwaterheating = "no",
+                          airconditioning = "no",
+                          parking = 0,
+                          prefarea = "no",
+                          furnishingstatus = "unfurnished"))
+```
+
+Powyżej wyceniony został dom o najskromniejszych możliwych parametrach. Jego cena to 1,43 mln dolarów.
+
+# Podsumowanie
+
+Przeprowadzona analiza dostarczyła dużo informacji o domach dostępnych w ofercie pewnej agencji nieruchomości. Zbudowany model ekonometryczny może być pomocnym narzędziem umożliwiającym wycenę takich obiektów.
