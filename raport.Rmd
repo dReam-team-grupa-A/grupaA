@@ -270,3 +270,32 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 ```
 
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
+
+# Model regresji
+Wybierając postać funkcyjną modelu regresji rozpoczyna się od oceny wzrokowej charakteru zależności między zmiennymi objaśniającymi, a zmienną objaśnianą. Sporządza się wykresy rozrzutu. Tutaj taki wykres można zrobić tylko dla pary area-price.
+
+```{r}
+# wykres rozrzutu
+ggplot(dane, aes(x = area, y = price)) + 
+geom_point() 
+```
+
+Mamy tutaj zależność dodatnią, czym większa powierzchnia domu, tym wyższa cena. Jednak układ punktów nie wskazuje na ściśły związek liniowy. Ponieważ jednak nie ma tu też zależności nieliniowej, więc szacujemy model regresji liniowej, czyli najprostszy model funkcyjny dopasowany do danych.
+
+```{r}
+# model regresji
+model <- lm(price ~ ., data = dane) 
+summary(model)
+```
+
+W przypadku ilościowych zmiennych objaśniających parametr strukturalny (kolumna Estimate) określa jak zmieni się cena, gdy dana zmienna wzrośnie o jednostkę, przy niezmienionych wartościach pozostałych zmiennych. Przykładowo powierzchnia domu większa o 1 tys. stóp kwadratowych, to cena większa przeciętnie o 0,24 mln dolarów.
+
+W przypadku zmiennych jakościowych mamy odniesienie do poziomu referencyjnego. Przykładowo dla zmiennej mainroad poziomem referencyjnym jest "no", współczynnik 0.42127 dla kategorii "yes" oznacza, że dla domu połączonego z główną drogą cena jest przeciętnie o 0,42 mln dolarów większa niż dla domów bez takiego połączenia.
+
+Dla wszystkich zmiennych poza furnishingstatus kategorią referencyjną jest "no" (dla furnishingstatus jest to "furnished", czyli pierwsza kategoria).
+
+Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p>0,05 dla testu t-Studenta), powinna ona zostać wyłączona z modelu, a ten oszacowany ponownie. Podobnie sytuacja ma się z jedną z kategorii zmiennej furnishingstatus, jednak tą zmienną należy traktować jako całość, nie da się sensownie wyłączyć tylko jednej kategorii.
+
+Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p<0,05 dla testu F).
+
+W powyższym modelu użyte zostały wszystkie dostępne zmienne objaśniające. Może powstać pytanie, czy jest to optymalny zestaw zmiennych. Ten możemy określić stosując metodę krokową doboru zmiennych (minimalizując wartość AIC).
