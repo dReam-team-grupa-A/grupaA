@@ -1,33 +1,179 @@
 ---
-editor_options: 
-  markdown: 
-    wrap: 72
+title: "Agencja nieruchomości"
+author: "grupaA"
+output: html_document
 ---
 
-library(arules) 
-library(hms) 
-library(readxl) 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+library(arules)
+library(hms)
+library(readxl)
 library(ggplot2)
-library(dplyr) 
-library(ggstatsplot) 
-library(magrittr) 
+library(dplyr)
+#library(ggstatsplot)
+library(magrittr)
 library(gt)
-library(lubridate) 
-library(gtsummary) 
+library(lubridate)
+library(gtsummary)
 library(summarytools)
-library(qwraps2) 
+library(qwraps2)
 library(kableExtra)
 
+```
+
+# Wstep 
+
+## Opis problemu 
+
+Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. 
+
+## Baza danych
+
+Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
+
+
 ```{r}
-# Cel projektu
+# wczytanie danych
+library(readxl) 
+dane <- read.csv("agencja_nieruchomosci.csv")
+
+# wyświetlenie pierwszych wierszy danych
+kable(head(dane))
+```
+
+## Zmienne
+
+Dane poddane analizie zawieraja ponizsze zmienne:
+
+-   **price** - cena nieruchomości w dolarach
+
+-   **area** - całkowita powierzchnia domu w stopach kwadratowych
+
+-   **bedrooms** - liczba sypialni w domu
+
+-   **bathrooms** - liczba łazienek w domu
+
+-   **stories** - liczba pięter w domu
+
+-   **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
+
+-   **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
+
+-   **basement** - czy dom jest podpiwniczony (Tak/Nie)
+
+-   **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
+
+-   **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
+
+-   **parking** - liczba miejsc parkingowych dostępnych w budynku
+
+-   **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
+
+-   **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
+
+```{r}
+# struktura danych 
+str(dane)
+```
+
+# Data Cleansing, Wrangling
+
+## Przygotowanie danych
+
+### dane w kolumnach gdzie yes/no
+
+Zbior danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te dane w taki sposób, że: 
+no-"0" 
+yes-"1" 
+dla kolumn: mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea. 
+
+```{r}
+# zamiana yes/no na 1/0
+dane$mainroad <- ifelse(dane$mainroad == 'yes', 1, 0)
+dane$guestroom  <- ifelse(dane$guestroom  == 'yes', 1, 0)
+dane$basement  <- ifelse(dane$basement  == 'yes', 1, 0)
+dane$hotwaterheating  <- ifelse(dane$hotwaterheating  == 'yes', 1, 0)
+dane$airconditioning  <- ifelse(dane$airconditioning  == 'yes', 1, 0)
+dane$prefarea  <- ifelse(dane$prefarea  == 'yes', 1, 0)
+```
+
+
+### dane z kolumny furnishingstatus
+
+W przypadku kolumny furnishingstatus zmienimy poniższe statusty na wartości: 
+unfurnished - "0"
+semi-furnished - "1"
+furnished - "2"
+
+```{r}
+# Zamiana wartości w kolumnie 'furnishingstatus'
+dane$furnishingstatus <- ifelse(dane$furnishingstatus == 'unfurnished', 0,
+                                  ifelse(dane$furnishingstatus == 'semi-furnished', 1,
+                                         ifelse(dane$furnishingstatus == 'furnished', 2, NA)))
+
+```
+
+
+### dane z kolumny price
+Dane z kolumny price zamienimy z cen w dolarach na ceny w polskich złotych. 
+
+```{r}
+# Kurs wymiany
+kurs_wymiany <- 4.00
+# 1USD=4.00PLN na dzien 4/02/2024
+
+# Przeliczenie cen z dolarów na złote
+dane$price <- dane$price * kurs_wymiany
+
+```
+
+### dane z kolumny area
+Natomiast dane z kolumny area zamienimy z powierzchni mierzonej w stopach kwadratowych na powierzchnię mierzoną w metrach kwadratowych. 
+
+```{r}
+# Współczynnik konwersji z stóp kwadratowych na metry kwadratowe
+wspolczynnik_konwersji <- 0.092903
+
+# Przeliczenie powierzchni z stóp kwadratowych na metry kwadratowe
+dane$area <- dane$area * wspolczynnik_konwersji
+#zaokrąglenie do dwoch miejsc po przecinku
+dane$area <- round(dane$area, 2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# 1. Cel projektu
 
 ```
 
 ```{r}
-# Czyszczenie i walidacja danych
-library(readxl) 
-dane <- read.csv("agencja_nieruchomosci.csv")
-View(dane) 
+# 2. Data Cleansing, Wrangling
+#2.1 wsywietlenie danych 
+
+
+
+```
+
+```{r}
 # ilość braków danych dla poszczególnych zmiennych
 data.frame(braki = sapply(dane, function(x) sum(is.na(x)))) 
 # w danych nie występują braki

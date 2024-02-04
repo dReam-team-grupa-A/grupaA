@@ -22,10 +22,13 @@ options(width = 150)
 ```
 
 # Wstęp
+
 ## Opis problemu
+
 Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. Narzędziem mającym to umożliwić będzie **model regresji**.
 
 ## Baza danych
+
 Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
 ```{r}
@@ -37,45 +40,46 @@ kable(head(dane))
 ```
 
 ## Zmienne
+
 Zmienną objaśnianą jest zmienna:
 
-- **price** - cena nieruchomości w dolarach
+-   **price** - cena nieruchomości w dolarach
 
 Zmienne objaśniające to parametry techniczne danej nieruchomości:
 
-- **area** - całkowita powierzchnia domu w stopach kwadratowych
+-   **area** - całkowita powierzchnia domu w stopach kwadratowych
 
-- **bedrooms** - liczba sypialni w domu
+-   **bedrooms** - liczba sypialni w domu
 
-- **bathrooms** - liczba łazienek w domu
+-   **bathrooms** - liczba łazienek w domu
 
-- **stories** - liczba pięter w domu
+-   **stories** - liczba pięter w domu
 
-- **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
+-   **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
 
-- **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
+-   **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
 
-- **basement** - czy dom jest podpiwniczony (Tak/Nie)
+-   **basement** - czy dom jest podpiwniczony (Tak/Nie)
 
-- **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
+-   **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
 
-- **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
+-   **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
 
-- **parking** - liczba miejsc parkingowych dostępnych w budynku
+-   **parking** - liczba miejsc parkingowych dostępnych w budynku
 
-- **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
+-   **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
 
-- **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
+-   **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
 
 ```{r}
 # wymiary bazy danych
 dim(dane)
 ```
 
-Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych.
-<<<<<<< HEAD
+Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych. \<\<\<\<\<\<\< HEAD
 
 # Przygotowanie danych
+
 Rozpoczynamy od sprawdzenia poprawności danych i dokowania ewentualnych poprawek. W pierwszym kroku sprawdzamy czy w bazie występują jakieś braki danych.
 
 ```{r}
@@ -100,9 +104,11 @@ dane <- dane %>%
 ```
 
 # Analiza eksploracyjna
+
 Przystępujemy do analizy struktury poszczególnych zmiennych. Dla zmiennych jakościowych sporządzamy wykres słupkowy rozkładu procentowego, dla zmiennych ilościowych obliczamy podstawowe miary rozkładu i sporządzamy histogram.
 
 ## Price
+
 Cena to zmienna ilościowa.
 
 ```{r}
@@ -132,7 +138,7 @@ Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniające
 kable(describe(dane[,c(2:5,11)])[c(2:5,8,9,11,12)])
 ```
 
-Wyniki interpretuje się analogicznie jak w przypadku ceny. 
+Wyniki interpretuje się analogicznie jak w przypadku ceny.
 
 ```{r, warning = FALSE}
 # histogramy
@@ -272,6 +278,7 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
 
 # Model regresji
+
 Wybierając postać funkcyjną modelu regresji rozpoczyna się od oceny wzrokowej charakteru zależności między zmiennymi objaśniającymi, a zmienną objaśnianą. Sporządza się wykresy rozrzutu. Tutaj taki wykres można zrobić tylko dla pary area-price.
 
 ```{r}
@@ -294,12 +301,11 @@ W przypadku zmiennych jakościowych mamy odniesienie do poziomu referencyjnego. 
 
 Dla wszystkich zmiennych poza furnishingstatus kategorią referencyjną jest "no" (dla furnishingstatus jest to "furnished", czyli pierwsza kategoria).
 
-Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p>0,05 dla testu t-Studenta), powinna ona zostać wyłączona z modelu, a ten oszacowany ponownie. Podobnie sytuacja ma się z jedną z kategorii zmiennej furnishingstatus, jednak tą zmienną należy traktować jako całość, nie da się sensownie wyłączyć tylko jednej kategorii.
+Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p\>0,05 dla testu t-Studenta), powinna ona zostać wyłączona z modelu, a ten oszacowany ponownie. Podobnie sytuacja ma się z jedną z kategorii zmiennej furnishingstatus, jednak tą zmienną należy traktować jako całość, nie da się sensownie wyłączyć tylko jednej kategorii.
 
-Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p<0,05 dla testu F).
+Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p\<0,05 dla testu F).
 
 W powyższym modelu użyte zostały wszystkie dostępne zmienne objaśniające. Może powstać pytanie, czy jest to optymalny zestaw zmiennych. Ten możemy określić stosując metodę krokową doboru zmiennych (minimalizując wartość AIC).
-
 
 ```{r}
 # metoda krokowa doboru zmiennych
