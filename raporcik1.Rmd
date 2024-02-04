@@ -2,6 +2,9 @@
 title: "Agencja nieruchomości"
 author: "grupaA"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -24,19 +27,25 @@ library(gtsummary)
 library(summarytools)
 library(qwraps2)
 library(kableExtra)
+if (!require(outliers)) {
+  install.packages("outliers")
+  library(outliers)
+}
 
 ```
 
-# Wstep 
+# Wstep
 
-## Opis problemu 
+## Opis problemu
 
-Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. 
+Przedmiotem rozważań niniejszego opracowania są ceny wybranych
+nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących
+istotnie wpływać na cenę domu.
 
 ## Baza danych
 
-Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
-
+Podstawą analizy jest baza danych nieruchomości wystawionych na
+sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
 ```{r}
 # wczytanie danych
@@ -67,31 +76,33 @@ Dane poddane analizie zawieraja ponizsze zmienne:
 
 -   **basement** - czy dom jest podpiwniczony (Tak/Nie)
 
--   **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
+-   **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody
+    (Tak/Nie)
 
 -   **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
 
 -   **parking** - liczba miejsc parkingowych dostępnych w budynku
 
--   **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
+-   **prefarea** - czy dom znajduje się w preferowanym obszarze
+    (Tak/Nie)
 
--   **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
+-   **furnishingstatus** - status umeblowania domu (w pełni umeblowany,
+    częściowo umeblowany, nieumeblowany)
 
 ```{r}
 # struktura danych 
 str(dane)
 ```
 
-# Data Cleansing, Wrangling
+# 1. Data Cleansing, Wrangling
 
-## Przygotowanie danych
+## Walidacja danych
 
 ### dane w kolumnach gdzie yes/no
 
-Zbior danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te dane w taki sposób, że: 
-no-"0" 
-yes-"1" 
-dla kolumn: mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea. 
+Zbior danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te
+dane w taki sposób, że: no-"0" yes-"1" dla kolumn: mainroad, guestroom,
+basement, hotwaterheating, airconditioning, prefarea.
 
 ```{r}
 # zamiana yes/no na 1/0
@@ -103,13 +114,10 @@ dane$airconditioning  <- ifelse(dane$airconditioning  == 'yes', 1, 0)
 dane$prefarea  <- ifelse(dane$prefarea  == 'yes', 1, 0)
 ```
 
-
 ### dane z kolumny furnishingstatus
 
-W przypadku kolumny furnishingstatus zmienimy poniższe statusty na wartości: 
-unfurnished - "0"
-semi-furnished - "1"
-furnished - "2"
+W przypadku kolumny furnishingstatus zmienimy poniższe statusty na
+wartości: unfurnished - "0" semi-furnished - "1" furnished - "2"
 
 ```{r}
 # Zamiana wartości w kolumnie 'furnishingstatus'
@@ -119,9 +127,10 @@ dane$furnishingstatus <- ifelse(dane$furnishingstatus == 'unfurnished', 0,
 
 ```
 
-
 ### dane z kolumny price
-Dane z kolumny price zamienimy z cen w dolarach na ceny w polskich złotych. 
+
+Dane z kolumny price zamienimy z cen w dolarach na ceny w polskich
+złotych.
 
 ```{r}
 # Kurs wymiany
@@ -134,7 +143,9 @@ dane$price <- dane$price * kurs_wymiany
 ```
 
 ### dane z kolumny area
-Natomiast dane z kolumny area zamienimy z powierzchni mierzonej w stopach kwadratowych na powierzchnię mierzoną w metrach kwadratowych. 
+
+Natomiast dane z kolumny area zamienimy z powierzchni mierzonej w
+stopach kwadratowych na powierzchnię mierzoną w metrach kwadratowych.
 
 ```{r}
 # Współczynnik konwersji z stóp kwadratowych na metry kwadratowe
@@ -142,34 +153,213 @@ wspolczynnik_konwersji <- 0.092903
 
 # Przeliczenie powierzchni z stóp kwadratowych na metry kwadratowe
 dane$area <- dane$area * wspolczynnik_konwersji
-#zaokrąglenie do dwoch miejsc po przecinku
-dane$area <- round(dane$area, 2)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-# 1. Cel projektu
-
 ```
 
 ```{r}
-# 2. Data Cleansing, Wrangling
-#2.1 wsywietlenie danych 
+# ponowne wyswietlenie struktura danych 
+str(dane)
+```
+
+### Sprawdzenie czy występują brakujące dane
+
+```{r}
+data.frame(braki = sapply(dane, function(x) sum(is.na(x))))
+
+```
+
+W zbiorze nie występują braki danych.
+
+Sprawdzamy jakie skrajne wartosci osiagaja poszczegolne zmienne.
+
+```{r}
+# zakres osiąganych wartości dla zmiennych ilościowych
+describe(dane[,c(1:5,11)])[8:9]
+```
+
+Jak widać ceny osiągają milionowe wartości. Aby nie operować bardzo
+dużymi liczbami wyrazimy je w mln PLN.
+
+```{r}
+# przeliczenia wartości zmiennej price 
+dane <- dane %>%
+  mutate(price = price/10^6)
+```
+
+### Sprawdzenie czy w danych występują duplikaty
+
+```{r}
+# Przypisanie danych bez duplikatów do nowej zmiennej
+dane_unikalne <- unique(dane)
+
+# Sprawdzenie, czy oryginalne dane zawierają duplikaty
+czy_duplikaty <- anyDuplicated(dane) > 0
+
+# Wyświetlenie informacji o duplikatach
+if (czy_duplikaty) {
+  print("Dane zawierają duplikaty.")
+} else {
+  print("Brak duplikatów w danych.")
+}
+```
+
+Sprawdzamy czy w zbiorze danych wystepuja wartosci ujemne. W zadnej
+zmiennej wartosci nie powinny byc ujemne.
+
+```{r}
+# Sprawdzenie, czy istnieją wartości ujemne w dowolnej kolumnie
+czy_sa_ujemne <- any(sapply(dane, function(x) any(x < 0)))
+
+# Wyświetlenie informacji
+if (czy_sa_ujemne) {
+  print("W ramce danych są wartości ujemne.")
+} else {
+  print("Brak wartości ujemnych w ramce danych.")
+}
+
+```
+
+##Dane odstające \### Sprawdzenie obserwacji odstających -
+jednowymiarowe
+
+```{r}
+par(mfrow = c(1, 3))
+for (col in colnames(dane)) {
+  if (is.numeric(dane[[col]])) {
+    boxplot(dane[[col]], 
+            main = paste("Wykres pudełkowy dla zmiennej\n", col), 
+            ylab = col,
+            col = "lightgreen",
+            border = "darkgreen",
+            pch = 18,
+            cex = 1.5,
+            cex.main = 1
+    )
+  }
+}
+```
+
+Cena: W zmiennej price, można zaobserwować zmienne odstające powyżej 35
+mln PLN. Może być to związen z dużym metrażem nieruchomości, atrakycjną
+lokalizacją, liczbą sypialni, lub poziomem umeblowania
+
+Powierzchnia: Można zaobserwować zmienne odstające dla powierzchni
+powyżej 850m2. Może być to związane z liczbą pięter, lub dużą ilością
+pomieszczeń takich jak sypialnia czy łazienka.
+
+Sypialnie: Istnieją nieruchomości posiadające 5 i 6 sypialni, które to
+wartości należą do zmiennych odstających w analizowanym zakresie.
+Wiekszość nieruchmości jest w przedziale 2-3 sypialnie.
+
+Lazienki: Znaczaca wiekszosc posiada do 2 lazienek. Natomiast istnieje
+zmienna odstająca, wskazująca na 4 łazienki w nieruchomości.
+
+Piętra: Nieruchomosci posiadaja glownie 1-2 pietra, istnieje zmienna
+odstajaca, wskazujaca na 4 pietra w nieruchmosci
+
+Miejsca parkingowe: Dla zbioru danych, mozna zaobserwować zmienną
+odstającą wskazujacą, że istnieją nieruchomości z 3 miejscami
+parkingowymi.
+
+### Sprawdzenie obserwacji odstających - wielowymiarowych
+
+Poniżej przygotowane wykresy rozrzutu dla posiadanych danych.
+
+```{r}
+# Stworzenie wykresu punktowego (scatterplot matrix)
+pairs(dane[, sapply(dane, is.numeric)], pch = 1, col = "darkgreen", cex = 1)
+
+# Dodanie oznaczenia dla obserwacji odstających
+outliers <- lapply(dane[, sapply(dane, is.numeric)], function(x) boxplot.stats(x)$out)
+outliers <- do.call(cbind, outliers)
+points(outliers[1, ], outliers[2, ], pch = 4, col = "red", cex = 0.5)
 
 
+```
+
+Poniżej indentyfikacja, w ktorych kolumnach (zmiennych) znajduja sie
+wartosci odstajace na podstawie odchylenia sandardowego.
+
+```{r}
+kolumny <- c("price", "area", "bedrooms", "bathrooms", "stories", "parking")
+conditions <- as.data.frame(lapply(dane[, kolumny], function(x) abs(scale(x)) > 3))
+summary(conditions)
+
+```
+
+Cena: 6 wartosci odstajacych z 545 nieruchomosci
+
+Powierzchnia: 7 wartosci odstajacych z 545 nieruchomosci
+
+Sypialnie: 2 wartosci odstajace z 545 nieruchomosci
+
+Lazienki: az 11 wartosci odstajacych z 545 nieruchomosci
+
+Pietra: brak wartosci odstajacych - wszystkie nieruchomosci maja podobna
+liczbe pieter
+
+Parking: brak wartosci odstajacych - wszystkie nieruchomosci maja
+podobna liczbe miejsc parkingowych
+
+### Test Grubbsa (test T)
+
+```{r}
+#Test Grubbsa dla zmiennej price (cena)
+grubbs.test(dane$price)
+```
+
+Test Grubbsa jest stosowany do wykrywania pojedynczych wartości
+odstających w zestawie danych.
+
+Wyniki testu Grubbsa można zinterpretować następująco:
+
+G = 4.56217: To jest statystyka testowa Grubbsa. Jeżeli jest duża,
+sugeruje to, że dane mogą zawierać wartość odstającą.
+
+U = 0.96167: To jest zmodyfikowana statystyka Grubbsa, która jest
+używana do obliczenia p-wartości.
+
+p-value = 0.001126: To jest p-wartość testu. Jeżeli jest mała (zazwyczaj
+poniżej 0.05), odrzucamy hipotezę zerową, która zakłada, że nie ma
+wartości odstających. W tym przypadku, p-wartość jest mała (0.001126),
+więc odrzucamy hipotezę zerową i stwierdzamy, że jest co najmniej jedna
+wartość odstająca.
+
+alternative hypothesis: highest value 53.2 is an outlier: To jest
+alternatywna hipoteza, która jest przyjmowana, gdy odrzucamy hipotezę
+zerową. W tym przypadku, sugeruje ona, że najwyższa wartość (53.2) jest
+wartością odstającą.
+
+Poniżej Test Grubbsa dla pozostalych zmiennych:
+
+```{r}
+grubbs.test(dane$area)
+grubbs.test(dane$bedrooms)
+grubbs.test(dane$bathrooms)
+grubbs.test(dane$stories)
+grubbs.test(dane$parking)
+```
+
+**Obserwujemy dane odstajace w zmiennych: price (wczesniej wymienione),
+area, bedrooms i bathrooms. W przypadku zmiennych stories oraz parking
+nie zaobserwowano wartosci odstajacych.**
+
+# 2. Wizualizacja Danych
+
+# 3. Analiza opisowa
+
+## Statystyki opisowe
+
+```{r}
+#statystyki opisowe
+kable(describe(dane1[,c(1:5,11)])[c(1:5,8,9,11,12)])
+```
+
+# 4. Wnioskowanie (testy statystyczne)
+
+# 5. Podsumowanie i wnioski końcowe
+
+```{r}
+# roboczy chunk
 
 ```
 
@@ -192,17 +382,6 @@ if (length(outliers) > 0) {
 
 #wyszły wartości odstające dla cen: #9240000 2345000 1750000 6650000 6160000 8890000 6405000 5033000 8400000 9681000 4690000 2870000 9100000
 # wartości te mogą być odstające ze zwględu na inne udogodnienia jak klimatyzacja, dostęp do głównej drogi itp więc nie możemy wykluczyć ich z dalszej analizy
-```
-# sprawdzamy czy w danych występują duplikaty
-```{r}
-dane <- unique(dane) 
-# nie występują
-```
-
-```{r}
-#sprawdzamy czy cena nie jest gdzies ujemna 
-negative_prices <- dane[dane$price < 0, ] 
-View(negative_prices)
 ```
 
 ```{r}
@@ -229,7 +408,6 @@ corrplot(correlation_matrix, method="circle")
 
 ```
 
-
 ```{r}
 #obliczenie ceny za metr 
 dane$cena_na_metr <- dane$price / dane$area
@@ -252,7 +430,6 @@ aggregate(dane$price, by = list(dane$prefarea), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od preferowanej okolicy
 boxplot(dane$price ~ dane$prefarea, main="Ceny w zależności od preferowanej okolicy", xlab="Preferowana okolica", ylab="Cena", col="lightgreen")
 ```
-
 
 ```{r}
 # Częstość posiadania piwnicy
@@ -307,7 +484,6 @@ ggplot(avg_prices, aes(x = mainroad, y = avg_price, fill = prefarea)) +
        x = "Dostęp do drogi", y = "Średnia cena") +
   theme_minimal()
 ```
-
 
 ```{r}
 # Utworzenie ramki danych zawierającej kolumny z ceną i kategoriami udogodnień
