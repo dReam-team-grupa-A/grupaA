@@ -4,10 +4,19 @@ editor_options:
     wrap: 72
 ---
 
-library(arules) library(hms) library(readxl) library(ggplot2)
-library(dplyr) library(ggstatsplot) library(magrittr) library(gt)
-library(lubridate) library(gtsummary) library(summarytools)
-library(qwraps2) library(kableExtra)
+library(arules) 
+library(hms) 
+library(readxl) 
+library(ggplot2)
+library(dplyr) 
+library(ggstatsplot) 
+library(magrittr) 
+library(gt)
+library(lubridate) 
+library(gtsummary) 
+library(summarytools)
+library(qwraps2) 
+library(kableExtra)
 
 ```{r}
 # Cel projektu
@@ -25,9 +34,8 @@ data.frame(braki = sapply(dane, function(x) sum(is.na(x))))
 
 #weryfikacja outlierów dla ceny zależej od powierzchni
 
-plot(dane$area, dane$price, main="Rozrzut cen vs. powierzchnia",
-xlab="Powierzchnia", ylab="Cena") 
-outliers <- boxplot(data$price ~ data$area, plot=FALSE)$out
+plot(dane$area, dane$price, main="Rozrzut cen vs. powierzchnia", xlab="Powierzchnia", ylab="Cena") 
+outliers <- boxplot(dane$price ~ dane$area, plot=FALSE)$out
 # Wyświetlenie wartości odstających
 if (length(outliers) > 0) {
   cat("Wartości odstające dla ceny:\n")
@@ -38,20 +46,22 @@ if (length(outliers) > 0) {
 
 #wyszły wartości odstające dla cen: #9240000 2345000 1750000 6650000 6160000 8890000 6405000 5033000 8400000 9681000 4690000 2870000 9100000
 # wartości te mogą być odstające ze zwględu na inne udogodnienia jak klimatyzacja, dostęp do głównej drogi itp więc nie możemy wykluczyć ich z dalszej analizy
-
+```
 # sprawdzamy czy w danych występują duplikaty
-
+```{r}
 dane <- unique(dane) 
 # nie występują
+```
 
+```{r}
 #sprawdzamy czy cena nie jest gdzies ujemna 
 negative_prices <- dane[dane$price < 0, ] 
 View(negative_prices)
+```
+
+```{r}
 
 # sprawdzanie korelacji między danymi
-
-correlation_matrix <- cor(dane) 
-print(correlation_matrix)
 
 # Konwersja zmiennych kategorycznych na numeryczne
 
@@ -71,6 +81,10 @@ library(corrplot)
 corrplot(correlation_matrix, method="circle") 
 # najwększe korelacje występują między ceną a ilościa łazienek, powierzchnią lub klimatyzacją. Trochę mniejsze między ilością sypialni, stories bądź iloscią miejsc parkingowych a ceną
 
+```
+
+
+```{r}
 #obliczenie ceny za metr 
 dane$cena_na_metr <- dane$price / dane$area
 
@@ -81,6 +95,9 @@ table(dane$mainroad)
 aggregate(dane$price, by = list(dane$mainroad), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od dostępu do drogi
 boxplot(dane$price ~ dane$mainroad, main="Ceny w zależności od dostępu do drogi", xlab="Dostęp do drogi", ylab="Cena", col="lightblue")
+```
+
+```{r}
 
 # Częstość preferowanej okolicy
 table(dane$prefarea)
@@ -88,35 +105,37 @@ table(dane$prefarea)
 aggregate(dane$price, by = list(dane$prefarea), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od preferowanej okolicy
 boxplot(dane$price ~ dane$prefarea, main="Ceny w zależności od preferowanej okolicy", xlab="Preferowana okolica", ylab="Cena", col="lightgreen")
+```
 
+
+```{r}
 # Częstość posiadania piwnicy
 table(dane$basement)
 # Średnia cena dla posiadania piwnicy
 aggregate(dane$price, by = list(dane$basement), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od posiadania piwnicy
 boxplot(dane$price ~ dane$basement, main="Ceny w zależności od posiadania piwnicy", xlab="Posiadanie piwnicy", ylab="Cena", col="lightcoral")
+```
 
-# Częstość posiadania ogrzewania wodą
-table(dane$hotwaterheating)
-# Średnia cena dla posiadania ogrzewania wodą
-aggregate(dane$price, by = list(dane$hotwaterheating), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od posiadania ogrzewania wodą
-boxplot(dane$price ~ dane$hotwaterheating, main="Ceny w zależności od ogrzewania wodą", xlab="Ogrzewanie wodą", ylab="Cena", col="lightpink")
-
+```{r}
 # Częstość posiadania klimatyzacji
 table(dane$airconditioning)
 # Średnia cena dla posiadania klimatyzacji
 aggregate(dane$price, by = list(dane$airconditioning), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od posiadania klimatyzacji
 boxplot(dane$price ~ dane$airconditioning, main="Ceny w zależności od klimatyzacji", xlab="Klimatyzacja", ylab="Cena", col="lightyellow")
+```
 
+```{r}
 # Częstość posiadania miejsc parkingowych
 table(dane$parking)
 # Średnia cena dla posiadania miejsc parkingowych
 aggregate(dane$price, by = list(dane$parking), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od posiadania miejsc parkingowych
 boxplot(dane$price ~ dane$parking, main="Ceny w zależności od miejsc parkingowych", xlab="Miejsca parkingowe", ylab="Cena", col="lightblue")
+```
 
+```{r}
 # Częstość statusu umeblowania
 table(dane$furnishingstatus)
 # Średnia cena dla różnych statusów umeblowania
@@ -124,7 +143,9 @@ aggregate(dane$price, by = list(dane$furnishingstatus), FUN = mean)
 # Wykres pudełkowy dla ceny w zależności od statusu umeblowania
 boxplot(dane$price ~ dane$furnishingstatus, main="Ceny w zależności od statusu umeblowania", xlab="Status umeblowania", ylab="Cena", col="lightgreen")
 
+```
 
+```{r}
 # Utworzenie ramki danych z średnimi cenami dla różnych kategorii
 
 # Utworzenie ramki danych z średnimi cenami dla różnych kategorii
@@ -139,8 +160,10 @@ ggplot(avg_prices, aes(x = mainroad, y = avg_price, fill = prefarea)) +
   labs(title = "Średnie ceny nieruchomości w zależności od różnych kategorii",
        x = "Dostęp do drogi", y = "Średnia cena") +
   theme_minimal()
+```
 
 
+```{r}
 # Utworzenie ramki danych zawierającej kolumny z ceną i kategoriami udogodnień
 df <- data.frame(
   price = dane$price,
