@@ -218,8 +218,8 @@ if (czy_sa_ujemne) {
 
 ```
 
-##Dane odstające \### Sprawdzenie obserwacji odstających -
-jednowymiarowe
+## Dane odstające 
+### Sprawdzenie obserwacji odstających -jednowymiarowe
 
 ```{r}
 par(mfrow = c(1, 3))
