@@ -30,6 +30,7 @@ library(kableExtra)
 if (!require(outliers)) {
   install.packages("outliers")
   library(outliers)
+  library(Hmisc)
 }
 
 ```
