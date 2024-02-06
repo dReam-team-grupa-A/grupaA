@@ -50,6 +50,7 @@ if (length(outliers) > 0) {
 # sprawdzamy czy w danych występują duplikaty
 ```{r}
 dane <- unique(dane) 
+View(unique(dane))
 # nie występują
 ```
 
