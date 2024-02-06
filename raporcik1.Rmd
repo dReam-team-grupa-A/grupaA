@@ -1120,4 +1120,5 @@ ggplot(df, aes(x = interaction(mainroad, prefarea, basement, hotwaterheating, ai
 # za wiele nie widać na wykresach wspólnych ( dużo danych mało miejsca ) więc nie wiem czy nie lepiej zrobić to w oddzielnych
 
 ```
-#testtest
+#testtest. 
+#test2
