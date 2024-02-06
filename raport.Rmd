@@ -22,99 +22,105 @@ options(width = 150)
 ```
 
 # Wstęp
+
 ## Opis problemu
+
 Przedmiotem rozważań niniejszego opracowania są ceny wybranych nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu. Narzędziem mającym to umożliwić będzie **model regresji**.
 
 ## Baza danych
+
 Podstawą analizy jest baza danych nieruchomości wystawionych na sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
 ```{r}
 # wczytanie danych
-dane <- read.csv("agencja_nieruchomosci.csv")
+dane1 <- read.csv("agencja_nieruchomosci.csv")
 
 # wyświetlenie pierwszych wierszy danych
-kable(head(dane))
+kable(head(dane1))
 ```
 
 ## Zmienne
+
 Zmienną objaśnianą jest zmienna:
 
-- **price** - cena nieruchomości w dolarach
+-   **price** - cena nieruchomości w dolarach
 
-Zmienne objaśniające to parametry techniczne danej nieruchomości:
+Zmienne objaśniające to parametry techniczne dane1j nieruchomości:
 
-- **area** - całkowita powierzchnia domu w stopach kwadratowych
+-   **area** - całkowita powierzchnia domu w stopach kwadratowych
 
-- **bedrooms** - liczba sypialni w domu
+-   **bedrooms** - liczba sypialni w domu
 
-- **bathrooms** - liczba łazienek w domu
+-   **bathrooms** - liczba łazienek w domu
 
-- **stories** - liczba pięter w domu
+-   **stories** - liczba pięter w domu
 
-- **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
+-   **mainroad** - czy dom jest połączony z główną drogą (Tak/Nie)
 
-- **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
+-   **guestroom** - czy dom posiada pokój gościnny (Tak/Nie)
 
-- **basement** - czy dom jest podpiwniczony (Tak/Nie)
+-   **basement** - czy dom jest podpiwniczony (Tak/Nie)
 
-- **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
+-   **hotwaterheating** - czy dom posiada system ogrzewania ciepłej wody (Tak/Nie)
 
-- **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
+-   **airconditioning** - czy dom posiada system klimatyzacji (Tak/Nie)
 
-- **parking** - liczba miejsc parkingowych dostępnych w budynku
+-   **parking** - liczba miejsc parkingowych dostępnych w budynku
 
-- **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
+-   **prefarea** - czy dom znajduje się w preferowanym obszarze (Tak/Nie)
 
-- **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
+-   **furnishingstatus** - status umeblowania domu (w pełni umeblowany, częściowo umeblowany, nieumeblowany)
 
 ```{r}
 # wymiary bazy danych
-dim(dane)
+dim(dane1)
 ```
 
-Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych.
-<<<<<<< HEAD
+Mamy 545 obserwacji (nieruchomości) opisanych przez 13 zmiennych. \<\<\<\<\<\<\< HEAD
 
 # Przygotowanie danych
+
 Rozpoczynamy od sprawdzenia poprawności danych i dokowania ewentualnych poprawek. W pierwszym kroku sprawdzamy czy w bazie występują jakieś braki danych.
 
 ```{r}
 # ilość braków danych dla poszczególnych zmiennych
-data.frame(braki = sapply(dane, function(x) sum(is.na(x))))
+data.frame(braki = sapply(dane1, function(x) sum(is.na(x))))
 ```
 
 Nie ma żadnych braków danych. Sprawdźmy dalej jaki jest zakres osiąganych wartości dla zmiennych ilościowych.
 
 ```{r}
 # zakres osiąganych wartości dla zmiennych ilościowych
-describe(dane[,c(1:5,11)])[8:9]
+describe(dane1[,c(1:5,11)])[8:9]
 ```
 
 Jak widać ceny osiągają tu milionowe wartości. Aby nie operować bardzo dużymi liczbami wyrazimy je w mln dolarów. Podobnie powierzchnię wyrazimy w tysiącach stóp kwadratowych.
 
 ```{r}
 # przeliczenia wartości zmiennych price i area
-dane <- dane %>%
+dane1 <- dane1 %>%
   mutate(price = price/10^6,
          area = area/10^3)
 ```
 
 # Analiza eksploracyjna
+
 Przystępujemy do analizy struktury poszczególnych zmiennych. Dla zmiennych jakościowych sporządzamy wykres słupkowy rozkładu procentowego, dla zmiennych ilościowych obliczamy podstawowe miary rozkładu i sporządzamy histogram.
 
 ## Price
+
 Cena to zmienna ilościowa.
 
 ```{r}
 # statystyki opisowe
-kable(describe(dane[,1])[c(2:5,8,9,11,12)])
+kable(describe(dane1[,1])[c(2:5,8,9,11,12)])
 ```
 
 Średnia cena badanych nieruchomości to 4,77 mln dolarów, przy czym ceny poszczególnych domów różnią się od średniej przeciętnie o 1,87 mln dolarów. Dla połowy nieruchomości cena nie przekracza 4,34 mln dolarów. Najniższa zaobserwowana wartość to 1,75, a najwyższa aż 13,3 mln dolarów. W rozkładzie występuje skrajna asymetria prawostronna, jest on też wyższy i smuklejszy od rozkładu normalnego.
 
 ```{r, warning = FALSE}
 # histogram
-ggplot(dane, aes(x = price)) + 
+ggplot(dane1, aes(x = price)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Price", 
        x = " million dollars", y = "n") +
@@ -129,38 +135,38 @@ Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniające
 
 ```{r}
 # statystyki opisowe
-kable(describe(dane[,c(2:5,11)])[c(2:5,8,9,11,12)])
+kable(describe(dane1[,c(2:5,11)])[c(2:5,8,9,11,12)])
 ```
 
-Wyniki interpretuje się analogicznie jak w przypadku ceny. 
+Wyniki interpretuje się analogicznie jak w przypadku ceny.
 
 ```{r, warning = FALSE}
 # histogramy
-plot1 <- ggplot(dane, aes(x = area)) + 
+plot1 <- ggplot(dane1, aes(x = area)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Area", 
        x = "thousand square feet", y = "n") +
   theme(plot.title = element_text(hjust = 0.5, size = 12))
 
-plot2 <- ggplot(dane, aes(x = bedrooms)) + 
+plot2 <- ggplot(dane1, aes(x = bedrooms)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Bedrooms", 
        x = "number", y = "n") +
   theme(plot.title = element_text(hjust = 0.5, size = 12))
 
-plot3 <- ggplot(dane, aes(x = bathrooms)) + 
+plot3 <- ggplot(dane1, aes(x = bathrooms)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Bathrooms", 
        x = "number", y = "n") +
   theme(plot.title = element_text(hjust = 0.5, size = 12))
 
-plot4 <- ggplot(dane, aes(x = stories)) + 
+plot4 <- ggplot(dane1, aes(x = stories)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Stories", 
        x = "number", y = "n") +
   theme(plot.title = element_text(hjust = 0.5, size = 12))
 
-plot5 <- ggplot(dane, aes(x = parking)) + 
+plot5 <- ggplot(dane1, aes(x = parking)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
   labs(title = "Parking", 
        x = "number", y = "n") +
@@ -175,7 +181,7 @@ W przypadku powierzchni również mamy asymetrię prawostronną. Pozostałe zmie
 
 ```{r,}
 # wykres słupkowy dla zmiennej mainroad
-tab <- as.data.frame(100*prop.table(table(dane$mainroad)))
+tab <- as.data.frame(100*prop.table(table(dane1$mainroad)))
 plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -188,7 +194,7 @@ plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej guestroom
-tab <- as.data.frame(100*prop.table(table(dane$guestroom)))
+tab <- as.data.frame(100*prop.table(table(dane1$guestroom)))
 plot2 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -201,7 +207,7 @@ plot2 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej basement
-tab <- as.data.frame(100*prop.table(table(dane$basement)))
+tab <- as.data.frame(100*prop.table(table(dane1$basement)))
 plot3 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -214,7 +220,7 @@ plot3 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej hotwaterheating
-tab <- as.data.frame(100*prop.table(table(dane$hotwaterheating)))
+tab <- as.data.frame(100*prop.table(table(dane1$hotwaterheating)))
 plot4 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -227,7 +233,7 @@ plot4 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej airconditioning
-tab <- as.data.frame(100*prop.table(table(dane$airconditioning)))
+tab <- as.data.frame(100*prop.table(table(dane1$airconditioning)))
 plot5 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -240,7 +246,7 @@ plot5 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej prefarea
-tab <- as.data.frame(100*prop.table(table(dane$prefarea)))
+tab <- as.data.frame(100*prop.table(table(dane1$prefarea)))
 plot6 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -253,7 +259,7 @@ plot6 <- ggplot(tab, aes(x = Var1, y = Freq)) +
        y = "%")
 
 # wykres słupkowy dla zmiennej furnishingstatus
-tab <- as.data.frame(100*prop.table(table(dane$furnishingstatus)))
+tab <- as.data.frame(100*prop.table(table(dane1$furnishingstatus)))
 plot7 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
   geom_col(fill = "#FFFF99", colour = "black") +
   geom_text(aes(label = paste0(round(Freq,1),"%")), 
@@ -272,11 +278,12 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
 
 # Model regresji
+
 Wybierając postać funkcyjną modelu regresji rozpoczyna się od oceny wzrokowej charakteru zależności między zmiennymi objaśniającymi, a zmienną objaśnianą. Sporządza się wykresy rozrzutu. Tutaj taki wykres można zrobić tylko dla pary area-price.
 
 ```{r}
 # wykres rozrzutu
-ggplot(dane, aes(x = area, y = price)) + 
+ggplot(dane1, aes(x = area, y = price)) + 
 geom_point() 
 ```
 
@@ -284,7 +291,7 @@ Mamy tutaj zależność dodatnią, czym większa powierzchnia domu, tym wyższa 
 
 ```{r}
 # model regresji
-model <- lm(price ~ ., data = dane) 
+model <- lm(price ~ ., data = dane1) 
 summary(model)
 ```
 
@@ -294,12 +301,11 @@ W przypadku zmiennych jakościowych mamy odniesienie do poziomu referencyjnego. 
 
 Dla wszystkich zmiennych poza furnishingstatus kategorią referencyjną jest "no" (dla furnishingstatus jest to "furnished", czyli pierwsza kategoria).
 
-Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p>0,05 dla testu t-Studenta), powinna ona zostać wyłączona z modelu, a ten oszacowany ponownie. Podobnie sytuacja ma się z jedną z kategorii zmiennej furnishingstatus, jednak tą zmienną należy traktować jako całość, nie da się sensownie wyłączyć tylko jednej kategorii.
+Wpływ zmiennej bedrooms na cenę okazał się nieistotny statystycznie (p\>0,05 dla testu t-Studenta), powinna ona zostać wyłączona z modelu, a ten oszacowany ponownie. Podobnie sytuacja ma się z jedną z kategorii zmiennej furnishingstatus, jednak tą zmienną należy traktować jako całość, nie da się sensownie wyłączyć tylko jednej kategorii.
 
-Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p<0,05 dla testu F).
+Łącznie wpływ wszystkich zmiennych objaśniających na zmienną objaśnianą jest istotny statystycznie (p\<0,05 dla testu F).
 
 W powyższym modelu użyte zostały wszystkie dostępne zmienne objaśniające. Może powstać pytanie, czy jest to optymalny zestaw zmiennych. Ten możemy określić stosując metodę krokową doboru zmiennych (minimalizując wartość AIC).
-
 
 ```{r}
 # metoda krokowa doboru zmiennych
