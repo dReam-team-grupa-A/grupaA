@@ -43,6 +43,10 @@ library(ggforce)
 #install.packages("psych")
 library(psych)
 
+#install.packages("gridExtra")
+library(gridExtra)
+
+
 ```
 
 # Wstep
@@ -477,6 +481,10 @@ ggplot(dane, aes(x = furnishingstatus, y = price, fill = factor(furnishingstatus
   scale_fill_brewer(palette = "Set3")
 
 
+
+
+
+
 ```
 
 ### Wizualizacja gęstości cen względem zmiennych
@@ -837,7 +845,7 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
 
 Powyższe dane zostaly wyswietlone w części dotyczącej wizualizacji danych, jednak dla spójności analizy ponawiamy je w tej części.
-
+# TUTAJ JEST COS NIE TAK~! (ponizej)
 
 ```{r kable_report2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(questionr)
