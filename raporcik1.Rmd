@@ -1118,11 +1118,3 @@ ggplot(df, aes(x = interaction(mainroad, prefarea, basement, hotwaterheating, ai
 
 
 # za wiele nie widać na wykresach wspólnych ( dużo danych mało miejsca ) więc nie wiem czy nie lepiej zrobić to w oddzielnych
-
-<<<<<<< HEAD
-```
-#testtest. 
-#test2
-=======
-```
->>>>>>> 1352ca38f5c8ee3af3c695d3b0144f750c4a9056
