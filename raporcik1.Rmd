@@ -989,21 +989,6 @@ if (length(outliers) > 0) {
 #wyszły wartości odstające dla cen: #9240000 2345000 1750000 6650000 6160000 8890000 6405000 5033000 8400000 9681000 4690000 2870000 9100000
 # wartości te mogą być odstające ze zwględu na inne udogodnienia jak klimatyzacja, dostęp do głównej drogi itp więc nie możemy wykluczyć ich z dalszej analizy
 ```
-<<<<<<< HEAD
-# sprawdzamy czy w danych występują duplikaty
-```{r}
-dane <- unique(dane) 
-View(unique(dane))
-# nie występują
-```
-
-```{r}
-#sprawdzamy czy cena nie jest gdzies ujemna 
-negative_prices <- dane[dane$price < 0, ] 
-View(negative_prices)
-```
-=======
->>>>>>> e6a138669793f372fc26dbeac851eba3c2e523ed
 
 ```{r}
 
