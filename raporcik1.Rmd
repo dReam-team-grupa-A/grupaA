@@ -13,40 +13,47 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE
 )
+
+if (!require(arules)) install.packages("arules")
 library(arules)
+if (!require(hms)) install.packages("hms")
 library(hms)
+if (!require(readxl)) install.packages("readxl")
 library(readxl)
+if (!require(ggplot2)) install.packages("ggplot2")
 library(ggplot2)
+if (!require(dplyr)) install.packages("dplyr")
 library(dplyr)
-#library(ggstatsplot)
+if (!require(ggstatsplot)) install.packages("ggstatsplot")
+library(ggstatsplot)
+if (!require(magrittr)) install.packages("magrittr")
 library(magrittr)
+if (!require(gt)) install.packages("gt")
 library(gt)
+if (!require(lubridate)) install.packages("lubridate")
 library(lubridate)
+if (!require(gtsummary)) install.packages("gtsummary")
 library(gtsummary)
+if (!require(summarytools)) install.packages("summarytools")
 library(summarytools)
+if (!require(qwraps2)) install.packages("qwraps2")
 library(qwraps2)
+if (!require(kableExtra)) install.packages("kableExtra")
 library(kableExtra)
-if (!require(outliers)) {
-  install.packages("outliers")
-  library(outliers)
-  library(Hmisc)
-}
+if (!require(outliers)) install.packages("outliers")
+library(outliers)
+if (!require(Hmisc)) install.packages("Hmisc")
+library(Hmisc)
+if (!require(psych)) install.packages("psych")
 library(psych)
-#install.packages("corrplot")
+if (!require(corrplot)) install.packages("corrplot")
 library(corrplot)
-
-#install.packages("tidyverse")
-#install.packages("ggforce")
+if (!require(tidyverse)) install.packages("tidyverse")
 library(tidyverse)
+if (!require(ggforce)) install.packages("ggforce")
 library(ggforce)
-
-#install.packages("psych")
-library(psych)
-
-#install.packages("gridExtra")
+if (!require(gridExtra)) install.packages("gridExtra")
 library(gridExtra)
-
-
 ```
 
 # Wstep
@@ -115,7 +122,7 @@ str(dane)
 
 ### dane w kolumnach gdzie yes/no
 
-Zbior danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te
+Zbiór danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te
 dane w taki sposób, że: no-"0" yes-"1" dla kolumn: mainroad, guestroom,
 basement, hotwaterheating, airconditioning, prefarea.
 
@@ -258,7 +265,7 @@ for (col in colnames(dane)) {
 ```
 
 Cena: W zmiennej price, można zaobserwować zmienne odstające powyżej 35
-mln PLN. Może być to związen z dużym metrażem nieruchomości, atrakycjną
+mln PLN. Może być to związane z dużym metrażem nieruchomości, atrakycjną
 lokalizacją, liczbą sypialni, lub poziomem umeblowania
 
 Powierzchnia: Można zaobserwować zmienne odstające dla powierzchni
@@ -544,40 +551,40 @@ ggplot(dane, aes(x = price, fill = factor(stories))) +
   labs(title = "Wizualizacja gęstości cen względem liczby pięter", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem głównej drogi
+# Wizualizacji gęstości cen względem dostępu do głównej drogi
 ggplot(dane, aes(x = price, fill = factor(mainroad))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem głównej drogi", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem dostępu do głównej drogi", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem pokoju gościnnego
+# Wizualizacji gęstości cen względem posiadania pokoju gościnnego
 ggplot(dane, aes(x = price, fill = factor(guestroom))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem pokoju gościnnego", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem posiadania pokoju gościnnego", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem piwnicy
+# Wizualizacji gęstości cen względem posiadania piwnicy
 ggplot(dane, aes(x = price, fill = factor(basement))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem piwnicy", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem posiadania piwnicy", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem ogrzewania wodą
+# Wizualizacji gęstości cen względem posiadania ogrzewania wodą
 ggplot(dane, aes(x = price, fill = factor(hotwaterheating))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem ogrzewania wodą", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem posiadania ogrzewania wodą", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem klimatyzacji
+# Wizualizacji gęstości cen względem posiadania klimatyzacji
 ggplot(dane, aes(x = price, fill = factor(airconditioning))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem klimatyzacji", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem posiadania klimatyzacji", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
-# Wizualizacji gęstości cen względem parkingu
+# Wizualizacji gęstości cen względem posiadania parkingu
 ggplot(dane, aes(x = price, fill = factor(parking))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem parkingu", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem posiadania parkingu", x = "Cena", y = "Gęstość") +
   theme_minimal()
 
 # Wizualizacji gęstości cen względem preferowanej okolicy
@@ -587,29 +594,49 @@ ggplot(dane, aes(x = price, fill = factor(prefarea))) +
   theme_minimal()
 
 
-# Wizualizacji gęstości cen względem statusu umeblowania
+# Wizualizacji gęstości cen względem stanu umeblowania
 ggplot(dane, aes(x = price, fill = factor(furnishingstatus))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem statusu umeblowania", x = "Cena", y = "Gęstość") +
+  labs(title = "Wizualizacja gęstości cen względem stanu umeblowania", x = "Cena", y = "Gęstość") +
   theme_minimal()
-
 ```
 
-**Gęstość cen względem liczby sypialni** Analizujac wykres gestosci ceny
-wzgledem liczby pokoi mozemy zaobserwowac, ze największa gęstość cen
+**Gęstość cen względem liczby sypialni** 
+Analizujac wykres gestosci ceny wzgledem liczby pokoi mozemy zaobserwowac, ze największa gęstość cen
 występuje dla mieszkań z jedną sypialnią, cena rośnie wraz ze wzrostem
 liczby sypialni oraz, że mieszkania z większą liczbą sypialni są
 rzadziej dostępne na rynku, co jest widoczne na wykresie przez niższą
 gęstość.
 
-**Gęstość cen względem liczby łazienek** Największa gęstość cen
-występuje dla mieszkań z jedną sypialnią. Cena rośnie wraz ze wzrostem
-liczby sypialni, co widać na wykresie poprzez przesunięcie szczytów fal
-w prawo. Mieszkania z większą liczbą sypialni są rzadziej dostępne na
-rynku, co jest widoczne na wykresie przez niższą gęstość dla fal
-reprezentujących większą liczbę sypialni.
+**Gęstość cen względem liczby łazienek** 
+Największa gęstość cen występuje dla mieszkań z jedną łazienką. W mniejszym stopniu występują mieszkania z kolejno dwoma i trzema łazienkami. Cena nierychomości wzrasta wraz z ilością łazienek, na co mogą mieć wpływ również inne udogodnienia dostęne w nieruchomości. 
 
-//opisac reszte tzreba bedzie
+**Gęstość cen względem liczby pięter**
+Wizualizacji gęstości cen względem liczby pięter pokazuje, że mieszania te występują w podobnej ilości. Różnicą, na którą powinniśmy zwrócić uwagę jest cena nieruchomości która rośnie wraz z ilością liczby pięter.Cena wzrasta adekwatnie do ilości pięter. 
+
+**Gęstość cen względem dostępu do drogi głównej**
+Wizualizacji gęstości cen względem dostępu do głównej drogi wskazuje na znaczną przewagę liczby mieszkań nieposiadających dostępu do drogi nad posiadającymi. Gęstość ceny nie wskazuje, aby był to czynnik mający dużą wartość dla nieruchomości, ceny dla mieszkań z dostępem do drogi głównej są jednak wyższe niż dla tych, które dostępu nie posiadają. 
+
+**Gęstość cen względem posiadania pokoju gościnnego**
+Analizujac wykres gestosci ceny wzgledem posiadania pokoju gościnnego można zauważyć że gęstość ich występowania jest bardzo podobna. Różnicą między tymi mieszkaniami jest cena, te z pokojem gościnnym są droższe od mieszkań bez pokoju gościnnego. Wpływać na to może między innymi dodatkowa powierzchnia dostępna w mieszkaniu posiadającym to udogodnienie. 
+
+**Gęstość cen względem posiadania piwnicy**
+Analizujac wykres gestosci ceny wzgledem posiadania piwnycy zauważamy, że zarówno mieszkania z jak i bez piwnicy występują w dużej ilości na rynku nieryuchomości, przewagę stanowią jednak mieszkania bez dostepu do piwnicy. Mieszkania te charakteryzują się również adekwatnie większą ceną na rynku. 
+
+**Gęstość cen względem posiadania ogrzewania wodą**
+Analizujac wykres gestosci ceny wzgledem posiadania ogrzewania wodą mozna zauważyć, że znaczna przewagę na rynku nieruchomości maja mieszkania, które nie posiadają systemu ogrzewania wodą. Jeśli chodzi o cenę nieruchomości droższe sa mieszkania posiadające taki system ogrzewania. 
+
+**Gęstość cen względem posiadania klimatyzacji**
+Analizujac wykres gestosci ceny wzgledem zauwazyc można dużą różnicę w gęstości występowania tego udogodnienia, zdecydowanie większą ilość mieszkań na rynku nieruchomości zajmują mieszkania nie posiadające klimatyzacji. Wykres wskazuje również na znacznie wyższe ceny nieruchomosci, które klimatyzacje posiadają. 
+
+**Gęstość cen względem posiadania parkingu**
+Analizujac wykres gestosci ceny wzgledem posiadania miejsca parkingowego możemy zauważyć że najwiekszą gestością charakteryzują sie mieszkania bez żadnego miejsca parkingowego. Podobna ęstść występuje dla mieszkań posiadających jedno, dwa bądź trzy miejsca parkingowe. Nie można jednoznacznie stwierdzić jaka ilosć miejsc parkingowych najbardziej podbija cene nieruchomości, jednakże zdecydowanie można stwierdzić że ceny mieszkań posiadających przynajmniej jedno miejsce parkingowe sa wyższe niż ceny mieszkań, które żadnego miejsca parkingowego nie posiadają. 
+
+**Gęstość cen względem preferowanej okolicy**
+Analizujac wykres gestosci ceny wzgledem preferowanej okolicy zauważyc można przewagę nieruchoości, które w preferowanej okolicy się nie znajdują. Jeśli chodzi o cene nieruchomości względem miejsca, znacznie wyższymi cenami charakteryzują sie nieruchomości znajdujące się w preferowanej okolicy. 
+
+**Gęstość cen względem stanu umeblowania**
+Analizujac wykres gestosci ceny wzgledem stanu umeblowania zauwazamy, że mieszkania nieumeblowane i wpółumeblowane zdecydowanie przeważaja nad mieszkaniami które są umeblowane w pełni. Analizując również ceny tych nieruchomości widać, że im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość. 
 
 ## Wizualizacja proporcji
 
@@ -634,6 +661,10 @@ Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz
 zmiennej area. Ponizej wizualizacja z uwzględnieniem tych dwóch
 zmiennych, jednak ze względu na chatakterystykę danych, z podziałem na 3
 przedziały.
+Wykres pokazuje, jak różne wartości różnych zmiennych są rozłożone w zbiorze danych. Można na nim łatwo zobaczyć, które wartości dominują, a które występują rzadziej. Ponadto, dzięki facetowaniu, można porównać rozkłady różnych zmiennych na osobnych panelach, co ułatwia analizę danych.
+Przykładowo dla pierwszego wykresu widzimy przewagę ilosci nieruchomosci z klimatyzacją nad nieruchomosciami, które klimatyzacji nie posiadają. 
+Drugi wykres wskazuje, że udział w rynku nieruchomosci mieszkań bez piwnicy jest wyższy niż dla mieszkań które te piwnicę posiadają. 
+Jesli chodzi o wykres przedstawiający ilosć lazienek zauwazamy, że trendują mieszkania posiadające jedną łazienkę, w przypadku sypialni najczęściej w nieruchomościach znajdują się 3. 
 
 ```{r}
 #library(tidyverse)
