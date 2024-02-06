@@ -13,7 +13,6 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE
 )
-
 library(arules)
 library(hms)
 library(readxl)
@@ -35,6 +34,14 @@ if (!require(outliers)) {
 library(psych)
 #install.packages("corrplot")
 library(corrplot)
+
+#install.packages("tidyverse")
+#install.packages("ggforce")
+library(tidyverse)
+library(ggforce)
+
+#install.packages("psych")
+library(psych)
 
 ```
 
@@ -270,7 +277,7 @@ parkingowymi.
 
 ### Sprawdzenie obserwacji odstających - wielowymiarowych
 
-Poniżej przygotowane wykresy rozrzutu dla posiadanych danych.
+Poniżej przygotowano wykresy rozrzutu dla posiadanych danych.
 
 ```{r}
 # Stworzenie wykresu punktowego (scatterplot matrix) z dostosowanymi parametrami
@@ -354,50 +361,33 @@ nie zaobserwowano wartosci odstajacych.**
 # 2. Wizualizacja Danych
 W tej części opracowano wizualizację danych w postaci: wizualizacja ilości, wizualizacja rozkładów, wizualizacja proporcji, wizualizacja trendów. 
 
-## Wizualizacja zmiennych ilościowych
+## Wizualizacja zmiennych - histogramy
 
-W naszym zbiorze danych można zauważyć, że do zmiennyc ilościowych należą: price, area, bedrooms, bathrooms, stories, parking. W dalszych wizualizacjach będziemy porównywać cenę (price) do każdej kolejnej zmiennej ilościowej. 
+Poniżej przedstawiamy wizualizację zmiennych dla naszego zbioru danych
 
 
 ```{r}
-# Histogram dla price
+# Histogramy dla zmiennych ilościowych
+par(mfrow=c(3, 2)) # Ustawienie układu wykresów
+
 hist(dane$price, main = 'Rozkład ceny', xlab = 'Cena', col = 'lightblue', border = 'black')
-
-# Histogram dla area
 hist(dane$area, main = 'Rozkład powierzchni', xlab = 'Powierzchnia', col = 'lightblue', border = 'black')
-
-# Histogram dla liczby bedrooms
 hist(dane$bedrooms, main = 'Rozkład liczby sypialni', xlab = 'Liczba sypialni', col = 'lightblue', border = 'black')
-
-# Histogram dla liczby bathrooms
 hist(dane$bathrooms, main = 'Rozkład liczby łazienek', xlab = 'Liczba łazienek', col = 'lightblue', border = 'black')
-
-# Histogram dla stories
 hist(dane$stories, main = 'Rozkład liczby pięter', xlab = 'Liczba pięter', col = 'lightblue', border = 'black')
-
-# Histogram dla mainroad
-hist(dane$mainroad, main = 'Rozkład dostepnosci do glownej drogi tak-1, nie- 0', xlab = 'Dostep do glownej drogi', col = 'lightblue', border = 'black')
-
-# Histogram dla guestroom
-hist(dane$guestroom, main = 'Rozkład czy wystepuje pokoj goscinny tak-1, nie- 0', xlab = 'pokoj goscinny', col = 'lightblue', border = 'black')
-
-# Histogram dla basement
-hist(dane$basement, main = 'Rozkład czy wystepuje piwnica tak-1, nie- 0', xlab = 'piwnica', col = 'lightblue', border = 'black')
-
-# Histogram dla hotwaterheating
-hist(dane$hotwaterheating, main = 'Rozkład czy system ogrzewania wody tak-1, nie- 0', xlab = 'system ogrzewania wody', col = 'lightblue', border = 'black')
-
-# Histogram dla airconditioning
-hist(dane$airconditioning, main = 'Rozkład czy wystepuje klimatyzacja tak-1, nie- 0', xlab = 'klimatyzacja', col = 'lightblue', border = 'black')
-
-# Histogram dla parking
 hist(dane$parking, main = 'Rozkład liczby miejsc parkingowych', xlab = 'Liczba miejsc parkingowych', col = 'lightblue', border = 'black')
 
-# Histogram dla prefarea
-hist(dane$prefarea, main = 'Rozkład czy nieruchomość występuje w preferowanym obszarze tak-1, nie- 0', xlab = 'preferowany obszar', col = 'lightblue', border = 'black')
+# Wykresy słupkowe dla zmiennych jakościowych
+par(mfrow=c(2, 3)) # Ustawienie układu wykresów
 
-# Histogram dla furnishingstatus
-hist(dane$furnishingstatus, main = 'Rozkład w jakim stopniu umeblowany 0-nieumeblowany, 1-czesciowo umeblowany, 2-calkowicie umeblowany', xlab = 'stopien umeblowania', col = 'lightblue', border = 'black')
+barplot(table(dane$mainroad), main = 'Dostępność do głównej drogi', xlab = 'Dostęp do głównej drogi', col = 'lightblue', border = 'black')
+barplot(table(dane$guestroom), main = 'Czy występuje pokój gościnny', xlab = 'Pokój gościnny', col = 'lightblue', border = 'black')
+barplot(table(dane$basement), main = 'Czy występuje piwnica', xlab = 'Piwnica', col = 'lightblue', border = 'black')
+barplot(table(dane$hotwaterheating), main = 'Czy system ogrzewania wody', xlab = 'System ogrzewania wody', col = 'lightblue', border = 'black')
+barplot(table(dane$airconditioning), main = 'Czy występuje klimatyzacja', xlab = 'Klimatyzacja', col = 'lightblue', border = 'black')
+barplot(table(dane$prefarea), main = 'Czy nieruchomość występuje w preferowanym obszarze', xlab = 'Preferowany obszar', col = 'lightblue', border = 'black')
+barplot(table(dane$furnishingstatus), main = 'Stopień umeblowania', xlab = 'Stopień umeblowania', col = 'lightblue', border = 'black')
+
 
 
 ```
@@ -405,85 +395,477 @@ hist(dane$furnishingstatus, main = 'Rozkład w jakim stopniu umeblowany 0-nieume
 
 ## Wizualizacja rozkładów
 
+### Histogramy rozkładu cen nieruchomości względem zmiennych
+
+Poniżej przedstawiamy analizę rozkładu cen nieruchomości w zależności od różnych cech, takich jak liczba sypialni, łazienek czy pięter. Histogramy prezentują, jak ceny zmieniają się w zależności od tych cech, co pomaga zrozumieć ich wpływ na wartość nieruchomości.
+
 ```{r}
-# Tworzenie histogramów dla liczby sypialni
-ggplot(dane, aes(x = price , fill = factor(bedrooms))) +
-  geom_histogram(binwidth = 50, position = "dodge", color = "black", alpha = 0.7) +
-  labs(title = "Histogram cen nieruchomości z podziałem na liczebność sypialni",
-       x = "Cena",
-       y = "Liczba nieruchomości") +
-  scale_fill_discrete(name = "Liczba sypialni")
-  
-# Tworzenie histogramów dla liczby łazienek
-ggplot(dane, aes(x = bathrooms, y = price, fill = factor(bathrooms))) +
-  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
-  labs(title = "Rozkład cen nieruchomości według liczby łazienek",
-       x = "Liczba łazienek",
-       y = "Cena") +
-  scale_fill_manual(values = rainbow(length(unique(dane$bathrooms)))) +
-  theme_minimal()
+# Tworzenie histogramu wzgledem liczby sypialni
+ggplot(dane, aes(x = bedrooms, y = price, fill = factor(bedrooms))) +  # Ustawienie danych i zmiennej x na liczba sypialni, zmienna y na ceny, wypełnienie koloru w zależności od liczby sypialni
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +  # Wyświetlenie histogramu z użyciem koloru czarnego
+  labs(title = "Rozkład cen względem liczby sypialni", x = "Liczba sypialni", y = "Cena") +  # Dodanie tytułu i etykiet osi x oraz y
+  theme_minimal() +  # Wybór minimalistycznego motywu wyglądu
+  scale_fill_brewer(palette = "Set3")  # Wybór palety kolorów dla różnych liczby sypialni
 
-# Tworzenie histogramów dla liczby pięter
+# Tworzenie histogramu wzgledem liczby lazienek
+ggplot(dane, aes(x = bathrooms, y = price, fill = factor(bathrooms))) +  
+  geom_histogram(stat = "identity", position = "dodge", color = "black")+ 
+  labs(title = "Rozkład cen względem liczby lazienek", x = "Liczba lazienek", y = "Cena") + theme_minimal() + scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu wzgledem liczby pieter
 ggplot(dane, aes(x = stories, y = price, fill = factor(stories))) +
-  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
-  labs(title = "Rozkład cen nieruchomości według liczby pięter",
-       x = "Liczba pięter",
-       y = "Cena") +
-  scale_fill_manual(values = rainbow(length(unique(dane$stories)))) +
-  theme_minimal()
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem liczby pięter", x = "Liczba pięter", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
 
-# Tworzenie histogramów dla liczby miejsc parkingowych
+# Tworzenie histogramu cen względem głównej drogi (mainroad)
+ggplot(dane, aes(x = mainroad, y = price, fill = factor(mainroad))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem głównej drogi", x = "Główna droga (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+
+# Tworzenie histogramu cen względem pokoju gościnnego (guestroom)
+ggplot(dane, aes(x = guestroom, y = price, fill = factor(guestroom))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem pokoju gościnnego", x = "Pokój gościnny (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem piwnicy (basement)
+ggplot(dane, aes(x = basement, y = price, fill = factor(basement))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem piwnicy", x = "Piwnica (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem  ogrzewania wodą (hotwaterheating)
+ggplot(dane, aes(x = hotwaterheating, y = price, fill = factor(hotwaterheating))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem ogrzewania wodą", x = "Ogrzewanie wodą (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem klimatyzacji (airconditioning)
+ggplot(dane, aes(x = airconditioning, y = price, fill = factor(airconditioning))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem klimatyzacji", x = "Klimatyzacja (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem parkingu (parking)
 ggplot(dane, aes(x = parking, y = price, fill = factor(parking))) +
-  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
-  labs(title = "Rozkład cen nieruchomości według liczby miejsc parkingowych",
-       x = "Liczba miejsc parkingowych",
-       y = "Cena") +
-  scale_fill_manual(values = rainbow(length(unique(dane$parking)))) +
-  theme_minimal()
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem parkingu", x = "Parking (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem preferowanej okolicy (prefarea)
+ggplot(dane, aes(x = prefarea, y = price, fill = factor(prefarea))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem preferowanej okolicy", x = "Preferowana okolica (1=Tak, 0=Nie)", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+# Tworzenie histogramu cen względem  statusu umeblowania (furnishingstatus)
+ggplot(dane, aes(x = furnishingstatus, y = price, fill = factor(furnishingstatus))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +
+  labs(title = "Rozkład cen względem statusu umeblowania", x = "Status umeblowania", y = "Cena") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
 
 
 ```
+
+### Wizualizacja gęstości cen względem zmiennych
+W poniższym fragmencie kodu prezentujemy analizę gęstości cen nieruchomości względem różnych cech, takich jak liczba sypialni, łazienek, pięter itp. Wizualizacje gęstości pomagają zrozumieć, jak zmienia się rozkład cen w zależności od poszczególnych cech nieruchomości.
+
+Gęstość w kontekście analizy danych oznacza, jak często i w jakim stopniu wartości zmiennej (np. ceny nieruchomości) skupiają się w określonych przedziałach. Wykres gęstości pokazuje, jak rozkładają się wartości zmiennej na osi numerycznej, gdzie wyższe wartości oznaczają obszary większego skupienia. Innymi słowy, obszary wyższej gęstości wskazują na większe prawdopodobieństwo wystąpienia wartości w danym przedziale, co pozwala lepiej zrozumieć charakterystykę danych i ich rozkład.
+
+```{r}
+
+# Wizualizacji gęstości cen względem liczby sypialni
+ggplot(dane, aes(x = price, fill = factor(bedrooms))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem liczby sypialni", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+
+# Wizualizacji gęstości cen względem liczby łazienek
+ggplot(dane, aes(x = price, fill = factor(bathrooms))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem liczby łazienek", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+
+# Wizualizacji gęstości cen względem liczby pięter
+ggplot(dane, aes(x = price, fill = factor(stories))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem liczby pięter", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem głównej drogi
+ggplot(dane, aes(x = price, fill = factor(mainroad))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem głównej drogi", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem pokoju gościnnego
+ggplot(dane, aes(x = price, fill = factor(guestroom))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem pokoju gościnnego", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem piwnicy
+ggplot(dane, aes(x = price, fill = factor(basement))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem piwnicy", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem ogrzewania wodą
+ggplot(dane, aes(x = price, fill = factor(hotwaterheating))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem ogrzewania wodą", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem klimatyzacji
+ggplot(dane, aes(x = price, fill = factor(airconditioning))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem klimatyzacji", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem parkingu
+ggplot(dane, aes(x = price, fill = factor(parking))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem parkingu", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+# Wizualizacji gęstości cen względem preferowanej okolicy
+ggplot(dane, aes(x = price, fill = factor(prefarea))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem preferowanej okolicy", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+
+# Wizualizacji gęstości cen względem statusu umeblowania
+ggplot(dane, aes(x = price, fill = factor(furnishingstatus))) +
+  geom_density(alpha = 0.6, color = "black") +
+  labs(title = "Wizualizacja gęstości cen względem statusu umeblowania", x = "Cena", y = "Gęstość") +
+  theme_minimal()
+
+```
+
+
+**Gęstość cen względem liczby sypialni**
+Analizujac wykres gestosci ceny wzgledem liczby pokoi mozemy zaobserwowac, ze największa gęstość cen występuje dla mieszkań z jedną sypialnią, cena rośnie wraz ze wzrostem liczby sypialni oraz, że mieszkania z większą liczbą sypialni są rzadziej dostępne na rynku, co jest widoczne na wykresie przez niższą gęstość.
+
+
+**Gęstość cen względem liczby łazienek**
+Największa gęstość cen występuje dla mieszkań z jedną sypialnią. Cena rośnie wraz ze wzrostem liczby sypialni, co widać na wykresie poprzez przesunięcie szczytów fal w prawo. Mieszkania z większą liczbą sypialni są rzadziej dostępne na rynku, co jest widoczne na wykresie przez niższą gęstość dla fal reprezentujących większą liczbę sypialni.
+
+//opisac reszte tzreba bedzie
+
 
 
 ## Wizualizacja proporcji
+
+```{r}
+dane %>%
+  gather(key = "variable", value = "value", -price, -area) %>%
+  group_by(variable, value) %>%
+  summarise(n = n()) %>%
+  mutate(percentage = n / sum(n)) -> dane_wiz
+
+# Stwórz wykres
+ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~variable, scales = "free", ncol = 4)
+  theme_minimal() +
+  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna",
+       title = "Proporcje zmiennych w zbiorze danych")
+
+```
+
+
+
+Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz zmiennej area. Ponizej wizualizacja z uwzględnieniem tych dwóch zmiennych, jednak ze względu na chatakterystykę danych, z podziałem na 3 przedziały.
+
+
+```{r}
+#library(tidyverse)
+
+# Podział zmiennych "price" i "area" na przedziały
+dane %>%
+  mutate(price_category = cut(price, breaks = 3),
+         area_category = cut(area, breaks = 3)) %>%
+  group_by(price_category, area_category) %>%
+  summarise(n = n()) %>%
+  mutate(percentage = n / sum(n)) -> dane_proporcje
+
+# Stworzenie wizualizacji proporcji dla każdej kategorii
+ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percentage)) +
+  geom_tile() +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(x = "price", y = "area", fill = "Proporcje (%)") +
+  theme_minimal() +
+  ggtitle("Proporcje w zależności od ceny i powierzchni")
+
+
+```
+
+Powyższa mapa cieplna jest wizualizacją proporcji zmiennych price i area. Oś x przedstawia ceny (price z podzialem na 3 przedziały, natomiast oś y  przedstawia zmienną area również z podziałem na 3 przedziały. Większość danych (około 80%) dotyczy nieruchomości o średniej cenie i sredniej powierzchni. Najmniej danych (blisko 0%) dotyczy nieruchomości o niskiej cenie i dużej powierzchni oraz o wysokiej cenie i małej powierzchni. 
+
+
+
+```{r}
+
+
+dane %>%
+  ggplot(aes(price, area,size = bathrooms, color = factor(stories))) +
+  labs(x = "Cena",
+       y = "Powierzchnia",
+       size = "Liczba sypialni \n(rozmiar punktorow)",
+       color = "Liczba lazienek \n(kolor punktorow)") +
+  geom_point(alpha = 0.8)
+
+
+```
+
+
 ## Wizualizacja trendów. 
 
-
-
-
-
+Wykres rozrzutu (scatter plot) jest jednym z podstawowych narzędzi do analizy trendów w danych. Wizualizuje relacje miedzy dwoma zmienymi, w tym przypadku powierzchni do ceny co moze pomoc w indenyfkacji trendów.
 
 ```{r}
-#library(ggplot2)
+# wykres rozrzutu
+ggplot(dane, aes(x = area, y = price)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
 
-# Tworzymy wykres rozproszenia
-ggplot(dane, aes(x=area, y=price, color = factor(stories))) +
-  geom_point(alpha=0.5) +
-  labs(title="Zależność między ceną a powierzchnią nieruchomości",
-       x="Powierzchnia (m2)",
-       y="Cena nieruchomości")
 
 ```
 
+Mamy tutaj zależność dodatnią, czym większa powierzchnia domu, tym wyższa cena. Jednak układ punktów nie wskazuje na ściśły związek liniowy. Ponieważ jednak nie ma tu też zależności nieliniowej.
 
 
-
-```{r}
-#roboczy chunk
-
-
-
-```
 
 
 
 # 3. Analiza opisowa
 
-## Statystyki opisowe
+W naszym zbiorze danych występują zmienne ilościowe: price, area, bedrooms, bathrooms, stories, parking; oraz zmienne jakościowe: mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea, furnishingstatus.
+
+# Analiza eksploracyjna
+
+Przystępujemy do analizy struktury poszczególnych zmiennych. Dla zmiennych jakościowych sporządzamy wykres słupkowy rozkładu procentowego, dla zmiennych ilościowych obliczamy podstawowe miary rozkładu i sporządzamy histogram.
+
+## Price
+
+Cena to zmienna ilościowa.
+
+```{r}
+# statystyki opisowe
+kable(describe(dane[,1])[c(2:5,8,9,11,12)])
+```
+
+
+Średnia cena badanych nieruchomości to 19.1 mln PLN, przy czym ceny poszczególnych domów różnią się od średniej przeciętnie o 7.48 mln PLN. Dla połowy nieruchomości cena nie przekracza 17.36 mln PLN Najniższa zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. 
+
+
+```{r}
+ggplot(dane, aes(x = price)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Price", 
+       x = " million PLN", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+```
+W rozkładzie dobrze widoczna jest asymetria prawostronna (wydłużona ramię z prawej strony).
+
+Aby nie tworzyć oddzielnej tabeli i wykresu dla każdej zmiennej objaśniającej bedziemy rozpatrywac je wspólnie.
+
+
+## Ilościowe zmienne objaśniające
 
 ```{r}
 #statystyki opisowe
-kable(describe(dane1[,c(1:5,11)])[c(1:5,8,9,11,12)])
+kable(describe(dane[,c(1:5,11)])[c(1:5,8,9,11,12)])
+```
+
+Wyniki interpretuje się analogicznie jak w przypadku ceny.
+
+
+```{r}
+# histogramy dla zmiennych ilościowych
+plot1 <- ggplot(dane, aes(x = area)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Area", 
+       x = "metry kwadratowe", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot2 <- ggplot(dane, aes(x = bedrooms)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Bedrooms", 
+       x = "liczba", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot3 <- ggplot(dane, aes(x = bathrooms)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Bathrooms", 
+       x = "liczba", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot4 <- ggplot(dane, aes(x = stories)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Stories", 
+       x = "liczba", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+plot5 <- ggplot(dane, aes(x = parking)) + 
+  geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
+  labs(title = "Parking", 
+       x = "liczba", y = "n") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12))
+
+grid.arrange(plot1, plot2, plot3, plot4, plot5, nrow = 2)
+```
+
+
+W przypadku powierzchni również mamy asymetrię prawostronną. Pozostałe zmienne to zmienne skokowe (przyjmujące tylko całkowite wartości), przy tak małym zakresie osiąganych wartości można je też potraktować jak zmienne jakościowe.
+
+
+## Jakościowe zmienne objaśniające
+
+```{r,}
+# wykres słupkowy dla zmiennej mainroad
+tab <- as.data.frame(100*prop.table(table(dane$mainroad)))
+plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Mainroad",
+       y = "%")
+
+# wykres słupkowy dla zmiennej guestroom
+tab <- as.data.frame(100*prop.table(table(dane$guestroom)))
+plot2 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Guestroom",
+       y = "%")
+
+# wykres słupkowy dla zmiennej basement
+tab <- as.data.frame(100*prop.table(table(dane$basement)))
+plot3 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Basement",
+       y = "%")
+
+# wykres słupkowy dla zmiennej hotwaterheating
+tab <- as.data.frame(100*prop.table(table(dane$hotwaterheating)))
+plot4 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Hotwaterheating",
+       y = "%")
+
+# wykres słupkowy dla zmiennej airconditioning
+tab <- as.data.frame(100*prop.table(table(dane$airconditioning)))
+plot5 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Airconditioning",
+       y = "%")
+
+# wykres słupkowy dla zmiennej prefarea
+tab <- as.data.frame(100*prop.table(table(dane$prefarea)))
+plot6 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Prefarea",
+       y = "%")
+
+# wykres słupkowy dla zmiennej furnishingstatus
+tab <- as.data.frame(100*prop.table(table(dane$furnishingstatus)))
+plot7 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
+  geom_col(fill = "#FFFF99", colour = "black") +
+  geom_text(aes(label = paste0(round(Freq,1),"%")), 
+            stat = "identity", size = 4, 
+            fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(colour = "black", size = 10),
+        plot.title = element_text(hjust = 0.5, size = 12)) +
+  labs(title = "Furnishingstatus",
+       y = "%")
+
+# wykres wspólny
+grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
+```
+
+Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
+
+Powyższe dane zostaly wyswietlone w części dotyczącej wizualizacji danych, jednak dla spójności analizy ponawiamy je w tej części.
+
+
+```{r kable_report2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+library(questionr)
+library(stats)
+raport <- list("Cena w PLN" =
+                list("Min"= ~ min(price),
+                     "Max"= ~ max(price),
+                     "Kwartyl dolny"= ~ quantile(price,0.25),
+                     "Mediana"= ~ round(median(price),2),
+                     "Kwartyl górny"= ~ quantile(price,0.75),
+                     "Średnia"= ~ round(mean(price),2),
+                     "Odch. std."= ~ round(sd(price),2),
+                     "IQR"= ~ round(IQR(price),2),
+                     "Odchylenie ćwiartkowe"=~round(iqr(price)/2,2),
+                     "Odch. std. w %"=~round((sd(price)/mean(price)),2),
+                     "Odch. ćwiartkowe w %"=~round((iqr(price)/median(price)),2),
+                     "Skośność"=~round(skew(price),2),
+                     "Kurtoza"=~round(kurtosis(price),2)
+                )
+)
+tabela <- summary_table(dane, summaries = raport, by = c("bedrooms"))
+
+knitr::kable(tabela,
+             digits = 2,
+             align = "lcccc",
+             caption = "Tabela 1..",
+             col.names = c("Statystyka", "1 pokój", "2 pokoje", "3 pokoje", "4 pokoje")) 
+
 ```
 
 
