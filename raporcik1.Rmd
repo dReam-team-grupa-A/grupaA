@@ -32,6 +32,9 @@ if (!require(outliers)) {
   library(outliers)
   library(Hmisc)
 }
+library(psych)
+#install.packages("corrplot")
+library(corrplot)
 
 ```
 
@@ -219,11 +222,13 @@ if (czy_sa_ujemne) {
 
 ```
 
-## Dane odstające 
+## Dane odstające
+
 ### Sprawdzenie obserwacji odstających -jednowymiarowe
 
 ```{r}
-par(mfrow = c(1, 3))
+
+par(mfrow = c(2, 2), cex.axis = 1.5, las = 2, mar = c(5, 5, 2, 2))
 for (col in colnames(dane)) {
   if (is.numeric(dane[[col]])) {
     boxplot(dane[[col]], 
@@ -235,6 +240,8 @@ for (col in colnames(dane)) {
             cex = 1.5,
             cex.main = 1
     )
+    outliers <- boxplot.stats(dane[[col]])$out
+    points(which(dane[[col]] %in% outliers), outliers, pch = 4, col = "red", cex = 0.5)
   }
 }
 ```
@@ -266,19 +273,27 @@ parkingowymi.
 Poniżej przygotowane wykresy rozrzutu dla posiadanych danych.
 
 ```{r}
-# Stworzenie wykresu punktowego (scatterplot matrix)
-pairs(dane[, sapply(dane, is.numeric)], pch = 1, col = "darkgreen", cex = 1)
+# Stworzenie wykresu punktowego (scatterplot matrix) z dostosowanymi parametrami
+par(mfrow = c(1, 1), mar = c(2, 2, 2, 2))  # Ustawienie jednego obszaru wykresu i marginesów
+pairs(dane[, sapply(dane, is.numeric)], pch = 16, col = "darkgreen", cex = 1.5)
 
 # Dodanie oznaczenia dla obserwacji odstających
 outliers <- lapply(dane[, sapply(dane, is.numeric)], function(x) boxplot.stats(x)$out)
 outliers <- do.call(cbind, outliers)
-points(outliers[1, ], outliers[2, ], pch = 4, col = "red", cex = 0.5)
+points(outliers[1, ], outliers[2, ], pch = 4, col = "red", cex = 1.5)
 
 
 ```
 
 Poniżej indentyfikacja, w ktorych kolumnach (zmiennych) znajduja sie
 wartosci odstajace na podstawie odchylenia sandardowego.
+
+Każdy rząd odpowiada za inną zmienną związaną z nieruchomościami: cena, powierzchnia, liczba sypialni, liczba łazienek, liczba pięter, główna droga, pokój gościnny, piwnica, ogrzewanie ciepłej wody, klimatyzacja, parking, preferowany obszar i stan umeblowania.
+
+Każda kolumna reprezentuje indywidualną obserwację lub nieruchomość. Zielone paski wskazują, w jakim stopniu każda obserwacja jest uważana za odstającą dla każdej zmiennej; wyższe paski wskazują, że obserwacja jest bardziej uważana za odstającą.
+
+
+Identyfikacja obserwacji odstających w danych liczbowych przy założeniu, że wartość bezwzględna wieksza niż 3:
 
 ```{r}
 kolumny <- c("price", "area", "bedrooms", "bathrooms", "stories", "parking")
@@ -308,8 +323,7 @@ podobna liczbe miejsc parkingowych
 grubbs.test(dane$price)
 ```
 
-Test Grubbsa jest stosowany do wykrywania pojedynczych wartości
-odstających w zestawie danych.
+Test Grubbsa jest stosowany do wykrywania pojedynczych wartości odstających w zestawie danych.
 
 Wyniki testu Grubbsa można zinterpretować następująco:
 
@@ -319,16 +333,9 @@ sugeruje to, że dane mogą zawierać wartość odstającą.
 U = 0.96167: To jest zmodyfikowana statystyka Grubbsa, która jest
 używana do obliczenia p-wartości.
 
-p-value = 0.001126: To jest p-wartość testu. Jeżeli jest mała (zazwyczaj
-poniżej 0.05), odrzucamy hipotezę zerową, która zakłada, że nie ma
-wartości odstających. W tym przypadku, p-wartość jest mała (0.001126),
-więc odrzucamy hipotezę zerową i stwierdzamy, że jest co najmniej jedna
-wartość odstająca.
+p-value = 0.001126: To jest p-wartość testu. Jeżeli jest mała (zazwyczaj poniżej 0.05), odrzucamy hipotezę zerową, która zakłada, że nie ma wartości odstających. W tym przypadku, p-wartość jest mała (0.001126), więc odrzucamy hipotezę zerową i stwierdzamy, że jest co najmniej jedna wartość odstająca.
 
-alternative hypothesis: highest value 53.2 is an outlier: To jest
-alternatywna hipoteza, która jest przyjmowana, gdy odrzucamy hipotezę
-zerową. W tym przypadku, sugeruje ona, że najwyższa wartość (53.2) jest
-wartością odstającą.
+alternative hypothesis: highest value 53.2 is an outlier: To jest alternatywna hipoteza, która jest przyjmowana, gdy odrzucamy hipotezę zerową. W tym przypadku, sugeruje ona, że najwyższa wartość (53.2) jest wartością odstającą.
 
 Poniżej Test Grubbsa dla pozostalych zmiennych:
 
@@ -345,6 +352,130 @@ area, bedrooms i bathrooms. W przypadku zmiennych stories oraz parking
 nie zaobserwowano wartosci odstajacych.**
 
 # 2. Wizualizacja Danych
+W tej części opracowano wizualizację danych w postaci: wizualizacja ilości, wizualizacja rozkładów, wizualizacja proporcji, wizualizacja trendów. 
+
+## Wizualizacja zmiennych ilościowych
+
+W naszym zbiorze danych można zauważyć, że do zmiennyc ilościowych należą: price, area, bedrooms, bathrooms, stories, parking. W dalszych wizualizacjach będziemy porównywać cenę (price) do każdej kolejnej zmiennej ilościowej. 
+
+
+```{r}
+# Histogram dla price
+hist(dane$price, main = 'Rozkład ceny', xlab = 'Cena', col = 'lightblue', border = 'black')
+
+# Histogram dla area
+hist(dane$area, main = 'Rozkład powierzchni', xlab = 'Powierzchnia', col = 'lightblue', border = 'black')
+
+# Histogram dla liczby bedrooms
+hist(dane$bedrooms, main = 'Rozkład liczby sypialni', xlab = 'Liczba sypialni', col = 'lightblue', border = 'black')
+
+# Histogram dla liczby bathrooms
+hist(dane$bathrooms, main = 'Rozkład liczby łazienek', xlab = 'Liczba łazienek', col = 'lightblue', border = 'black')
+
+# Histogram dla stories
+hist(dane$stories, main = 'Rozkład liczby pięter', xlab = 'Liczba pięter', col = 'lightblue', border = 'black')
+
+# Histogram dla mainroad
+hist(dane$mainroad, main = 'Rozkład dostepnosci do glownej drogi tak-1, nie- 0', xlab = 'Dostep do glownej drogi', col = 'lightblue', border = 'black')
+
+# Histogram dla guestroom
+hist(dane$guestroom, main = 'Rozkład czy wystepuje pokoj goscinny tak-1, nie- 0', xlab = 'pokoj goscinny', col = 'lightblue', border = 'black')
+
+# Histogram dla basement
+hist(dane$basement, main = 'Rozkład czy wystepuje piwnica tak-1, nie- 0', xlab = 'piwnica', col = 'lightblue', border = 'black')
+
+# Histogram dla hotwaterheating
+hist(dane$hotwaterheating, main = 'Rozkład czy system ogrzewania wody tak-1, nie- 0', xlab = 'system ogrzewania wody', col = 'lightblue', border = 'black')
+
+# Histogram dla airconditioning
+hist(dane$airconditioning, main = 'Rozkład czy wystepuje klimatyzacja tak-1, nie- 0', xlab = 'klimatyzacja', col = 'lightblue', border = 'black')
+
+# Histogram dla parking
+hist(dane$parking, main = 'Rozkład liczby miejsc parkingowych', xlab = 'Liczba miejsc parkingowych', col = 'lightblue', border = 'black')
+
+# Histogram dla prefarea
+hist(dane$prefarea, main = 'Rozkład czy nieruchomość występuje w preferowanym obszarze tak-1, nie- 0', xlab = 'preferowany obszar', col = 'lightblue', border = 'black')
+
+# Histogram dla furnishingstatus
+hist(dane$furnishingstatus, main = 'Rozkład w jakim stopniu umeblowany 0-nieumeblowany, 1-czesciowo umeblowany, 2-calkowicie umeblowany', xlab = 'stopien umeblowania', col = 'lightblue', border = 'black')
+
+
+```
+
+
+## Wizualizacja rozkładów
+
+```{r}
+# Tworzenie histogramów dla liczby sypialni
+ggplot(dane, aes(x = price , fill = factor(bedrooms))) +
+  geom_histogram(binwidth = 50, position = "dodge", color = "black", alpha = 0.7) +
+  labs(title = "Histogram cen nieruchomości z podziałem na liczebność sypialni",
+       x = "Cena",
+       y = "Liczba nieruchomości") +
+  scale_fill_discrete(name = "Liczba sypialni")
+  
+# Tworzenie histogramów dla liczby łazienek
+ggplot(dane, aes(x = bathrooms, y = price, fill = factor(bathrooms))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
+  labs(title = "Rozkład cen nieruchomości według liczby łazienek",
+       x = "Liczba łazienek",
+       y = "Cena") +
+  scale_fill_manual(values = rainbow(length(unique(dane$bathrooms)))) +
+  theme_minimal()
+
+# Tworzenie histogramów dla liczby pięter
+ggplot(dane, aes(x = stories, y = price, fill = factor(stories))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
+  labs(title = "Rozkład cen nieruchomości według liczby pięter",
+       x = "Liczba pięter",
+       y = "Cena") +
+  scale_fill_manual(values = rainbow(length(unique(dane$stories)))) +
+  theme_minimal()
+
+# Tworzenie histogramów dla liczby miejsc parkingowych
+ggplot(dane, aes(x = parking, y = price, fill = factor(parking))) +
+  geom_histogram(stat = "identity", position = "dodge", color = "black", bins = 30) +
+  labs(title = "Rozkład cen nieruchomości według liczby miejsc parkingowych",
+       x = "Liczba miejsc parkingowych",
+       y = "Cena") +
+  scale_fill_manual(values = rainbow(length(unique(dane$parking)))) +
+  theme_minimal()
+
+
+```
+
+
+## Wizualizacja proporcji
+## Wizualizacja trendów. 
+
+
+
+
+
+
+```{r}
+#library(ggplot2)
+
+# Tworzymy wykres rozproszenia
+ggplot(dane, aes(x=area, y=price, color = factor(stories))) +
+  geom_point(alpha=0.5) +
+  labs(title="Zależność między ceną a powierzchnią nieruchomości",
+       x="Powierzchnia (m2)",
+       y="Cena nieruchomości")
+
+```
+
+
+
+
+```{r}
+#roboczy chunk
+
+
+
+```
+
+
 
 # 3. Analiza opisowa
 
@@ -354,6 +485,42 @@ nie zaobserwowano wartosci odstajacych.**
 #statystyki opisowe
 kable(describe(dane1[,c(1:5,11)])[c(1:5,8,9,11,12)])
 ```
+
+
+
+```{r}
+
+#library(ggplot2)
+#library(corrplot)
+
+# Wybrane zmienne ilościowe
+zmienne_ilosciowe <- c("price", "area", "bathrooms", "bedrooms", "stories", "parking")
+
+# Tworzenie macierzy korelacji dla wybranych zmiennych
+corr_matrix <- cor(dane[, zmienne_ilosciowe])
+
+# Konfiguracja wykresu z większym dolnym marginesem
+par(mar = c(12, 2, 1, 1))
+
+# Tworzenie mapy cieplnej z adnotacjami
+corrplot(corr_matrix, method = "color", type = "upper", 
+         order = "hclust", tl.cex = 0.7, tl.col = "black", tl.srt = 45)
+
+# Dodanie tytułu z większym dolnym marginesem
+title(main = "Mapa macierzy korelacji", col.main = "blue", font.main = 4, cex.main = 1.2)
+
+
+```
+
+
+Mapa ta przedstawia korelację między różnymi zmiennymi (kolumnami) dla nieruchomosci w agencji nieruchomosci
+
+Pozytywne korelacje są oznaczone na niebiesko, a negatywne na czerwono; im ciemniejszy kolor, tym silniejsza korelacja.
+- price ma silną pozytywną korelację z area, co widać po ciemnoniebieskim kolorze.
+- mainroad ma negatywną korelację z stories, co widać po jasnoczerwonym kolorze.
+Pola na przekątnej od lewego górnego do prawego dolnego rogu są wszystkie ciemnoniebieskie, co wskazuje, że każda zmienna ma doskonałą pozytywną korelację ze sobą
+
+
 
 # 4. Wnioskowanie (testy statystyczne)
 
