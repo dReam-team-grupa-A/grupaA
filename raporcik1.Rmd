@@ -1351,6 +1351,25 @@ uznać je za istotne statystycznie.Wartość p wynosi mniej niż ustalony
 poziom istotności (zwykle 0.05), co oznacza, że istnieją statystycznie
 istotne różnice w cenach nieruchomości między grupami sypialni.
 
+## Udział mieszkań z różnym stanem umeblowania na rynku nieruchomości
+
+```{r}
+library(ggplot2)
+count <- table(dane$furnishingstatus)
+df <- data.frame(furnishingstatus = names(count), count = as.numeric(count))
+df$percent <- df$count / sum(df$count) * 100
+
+ggplot(df, aes(x = "", y = count, fill = furnishingstatus)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start=0) +
+  scale_fill_manual(values = c("grey", "lightblue", "darkblue")) +  # Ustawiamy kolory
+  theme_void() +
+  geom_text(aes(label = paste0(round(percent), "%")), position = position_stack(vjust = 0.5)) +  # Dodajemy etykiety procentowe
+  labs(title = "Udział rodzaju umeblowania")  # Dodajemy tytuł
+```
+
+
+
 ##Badanie rozkładu ilości sypialni względen ceny nieruchomości
 
 ```{r}
