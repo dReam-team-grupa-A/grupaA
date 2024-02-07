@@ -42,6 +42,8 @@ if (!require(kableExtra)) install.packages("kableExtra")
 library(kableExtra)
 if (!require(outliers)) install.packages("outliers")
 library(outliers)
+#if (!require(htmltools)) install.packages("htmltools")
+#library(htmltools)
 if (!require(Hmisc)) install.packages("Hmisc")
 library(Hmisc)
 if (!require(psych)) install.packages("psych")
@@ -52,8 +54,14 @@ if (!require(tidyverse)) install.packages("tidyverse")
 library(tidyverse)
 if (!require(ggforce)) install.packages("ggforce")
 library(ggforce)
-if (!require(gridExtra)) install.packages("gridExtra")
-library(gridExtra)
+if (!require(knitr)) install.packages("knitr")
+library(knitr)
+if (!require(psych)) install.packages("psych")
+library(psych)
+
+
+
+
 ```
 
 # Wstep
@@ -195,7 +203,8 @@ Sprawdzamy jakie skrajne wartosci osiagaja poszczegolne zmienne.
 
 ```{r}
 # zakres osiąganych wartości dla zmiennych ilościowych
-describe(dane[,c(1:5,11)])[8:9]
+psych::describe(dane[, c(1:5, 11)])
+
 ```
 
 Jak widać ceny osiągają milionowe wartości. Aby nie operować bardzo
@@ -293,12 +302,22 @@ Poniżej przygotowano wykresy rozrzutu dla posiadanych danych.
 ```{r}
 # Stworzenie wykresu punktowego (scatterplot matrix) z dostosowanymi parametrami
 par(mfrow = c(1, 1), mar = c(2, 2, 2, 2))  # Ustawienie jednego obszaru wykresu i marginesów
-pairs(dane[, sapply(dane, is.numeric)], pch = 16, col = "darkgreen", cex = 1.5)
+
+# Funkcja do usuwania brakujących wartości
+remove_missing <- function(x) x[!is.na(x)]
+
+# Pobranie danych numerycznych
+numeric_data <- dane[, sapply(dane, is.numeric)]
+
+# Narysowanie punktów na wykresie
+pairs(numeric_data, pch = 16, col = "darkgreen", cex = 1.5)
 
 # Dodanie oznaczenia dla obserwacji odstających
-outliers <- lapply(dane[, sapply(dane, is.numeric)], function(x) boxplot.stats(x)$out)
-outliers <- do.call(cbind, outliers)
-points(outliers[1, ], outliers[2, ], pch = 4, col = "red", cex = 1.5)
+outliers_x <- lapply(numeric_data, function(x) boxplot.stats(remove_missing(x))$out)
+outliers_y <- lapply(numeric_data, function(x) rep(1, length(boxplot.stats(remove_missing(x))$out)))
+outliers_x <- unlist(outliers_x)
+outliers_y <- unlist(outliers_y)
+points(outliers_x, outliers_y, pch = 4, col = "red", cex = 1.5)
 
 
 ```
@@ -430,16 +449,18 @@ co pomaga zrozumieć ich wpływ na wartość nieruchomości.
 
 ```{r}
 # Tworzenie histogramu wzgledem liczby sypialni
-ggplot(dane, aes(x = bedrooms, y = price, fill = factor(bedrooms))) +  # Ustawienie danych i zmiennej x na liczba sypialni, zmienna y na ceny, wypełnienie koloru w zależności od liczby sypialni
-  geom_histogram(stat = "identity", position = "dodge", color = "black") +  # Wyświetlenie histogramu z użyciem koloru czarnego
-  labs(title = "Rozkład cen względem liczby sypialni", x = "Liczba sypialni", y = "Cena") +  # Dodanie tytułu i etykiet osi x oraz y
-  theme_minimal() +  # Wybór minimalistycznego motywu wyglądu
-  scale_fill_brewer(palette = "Set3")  # Wybór palety kolorów dla różnych liczby sypialni
+ggplot(dane, aes(x = bedrooms, y = price, fill = factor(bedrooms))) +  
+  geom_histogram(stat = "identity", position = "dodge", color = "black") +  
+  labs(title = "Rozkład cen względem liczby sypialni", x = "Liczba sypialni", y = "Cena") + 
+  theme_minimal() + 
+  scale_fill_brewer(palette = "Set3")
 
 # Tworzenie histogramu wzgledem liczby lazienek
 ggplot(dane, aes(x = bathrooms, y = price, fill = factor(bathrooms))) +  
   geom_histogram(stat = "identity", position = "dodge", color = "black")+ 
-  labs(title = "Rozkład cen względem liczby lazienek", x = "Liczba lazienek", y = "Cena") + theme_minimal() + scale_fill_brewer(palette = "Set3")
+  labs(title = "Rozkład cen względem liczby lazienek", x = "Liczba lazienek", y = "Cena") + 
+  theme_minimal() + 
+  scale_fill_brewer(palette = "Set3")
 
 # Tworzenie histogramu wzgledem liczby pieter
 ggplot(dane, aes(x = stories, y = price, fill = factor(stories))) +
@@ -455,7 +476,6 @@ ggplot(dane, aes(x = mainroad, y = price, fill = factor(mainroad))) +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3")
 
-
 # Tworzenie histogramu cen względem pokoju gościnnego (guestroom)
 ggplot(dane, aes(x = guestroom, y = price, fill = factor(guestroom))) +
   geom_histogram(stat = "identity", position = "dodge", color = "black") +
@@ -470,7 +490,7 @@ ggplot(dane, aes(x = basement, y = price, fill = factor(basement))) +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3")
 
-# Tworzenie histogramu cen względem  ogrzewania wodą (hotwaterheating)
+# Tworzenie histogramu cen względem ogrzewania wodą (hotwaterheating)
 ggplot(dane, aes(x = hotwaterheating, y = price, fill = factor(hotwaterheating))) +
   geom_histogram(stat = "identity", position = "dodge", color = "black") +
   labs(title = "Rozkład cen względem ogrzewania wodą", x = "Ogrzewanie wodą (1=Tak, 0=Nie)", y = "Cena") +
@@ -498,17 +518,12 @@ ggplot(dane, aes(x = prefarea, y = price, fill = factor(prefarea))) +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3")
 
-# Tworzenie histogramu cen względem  statusu umeblowania (furnishingstatus)
+# Tworzenie histogramu cen względem statusu umeblowania (furnishingstatus)
 ggplot(dane, aes(x = furnishingstatus, y = price, fill = factor(furnishingstatus))) +
   geom_histogram(stat = "identity", position = "dodge", color = "black") +
   labs(title = "Rozkład cen względem statusu umeblowania", x = "Status umeblowania", y = "Cena") +
   theme_minimal() +
   scale_fill_brewer(palette = "Set3")
-
-
-
-
-
 
 ```
 
@@ -560,8 +575,7 @@ ggplot(dane, aes(x = price, fill = factor(mainroad))) +
 # Wizualizacji gęstości cen względem posiadania pokoju gościnnego
 ggplot(dane, aes(x = price, fill = factor(guestroom))) +
   geom_density(alpha = 0.6, color = "black") +
-  labs(title = "Wizualizacja gęstości cen względem posiadania pokoju gościnnego", x = "Cena", y = "Gęstość") +
-  theme_minimal()
+  labs(title = "Wizualizacja gęstości cen względem posiadania pokoju gościnnego", x = "Cena", y = "Gęstość") + theme_minimal()
 
 # Wizualizacji gęstości cen względem posiadania piwnicy
 ggplot(dane, aes(x = price, fill = factor(basement))) +
@@ -710,6 +724,10 @@ dane %>%
 
 ```
 
+
+Powyższy wykres pnktowy, wizualizuje zależność między ceną a powierzchnią nieruchomości. Rozmiar punktów reprezentuje liczbę sypialni, a kolor wskazuje na liczbę łazienek. Możemy zauważyć, że istnieje koncentracja nieruchomości o niższych cenach i mniejszych powierzchniach. Nieruchomości z większą liczbą łązienek są zazwyczaj większe i droższe. Nie ma wyraźnej liniowej zależności między ceną a powierzchnią, co wskazuje na zmieność cen nieruchomości i wskazuje, że inne czynniki, również wpływają na cenę. 
+
+
 ## Wizualizacja trendów.
 
 Wykres rozrzutu (scatter plot) jest jednym z podstawowych narzędzi do
@@ -732,7 +750,8 @@ liniowy. Ponieważ jednak nie ma tu też zależności nieliniowej.
 # 3. Analiza opisowa
 
 W naszym zbiorze danych występują zmienne ilościowe: price, area,
-bedrooms, bathrooms, stories, parking; oraz zmienne jakościowe:
+bedrooms, bathrooms, stories, parking; 
+oraz zmienne jakościowe:
 mainroad, guestroom, basement, hotwaterheating, airconditioning,
 prefarea, furnishingstatus.
 
@@ -777,7 +796,9 @@ objaśniającej bedziemy rozpatrywac je wspólnie.
 
 ```{r}
 #statystyki opisowe
-kable(describe(dane[,c(1:5,11)])[c(1:5,8,9,11,12)])
+#kable(describe(dane[,1])[c(2:5,8,9,11,12)])
+#kable(describe(dane))
+#???
 ```
 
 Wyniki interpretuje się analogicznie jak w przypadku ceny.
