@@ -67,6 +67,7 @@ library(pastecs)
 library(desctable)
 library(frequency)
 library(ggpubr)
+library(gridExtra)
 
 ```
 
@@ -417,6 +418,7 @@ trendów.
 ## Wizualizacja zmiennych - histogramy
 
 ```{r}
+library(gridExtra)
 # histogramy dla zmiennych ilościowych
 plot1 <- ggplot(dane, aes(x = area)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
@@ -814,17 +816,16 @@ im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość.
 dane %>%
   gather(key = "variable", value = "value", -price, -area) %>%
   group_by(variable, value) %>%
-  summarise(count = n_distinct()) %>%
-  mutate(percentage = count / sum(count)) -> dane_wiz
+  summarise(n = n()) %>%
+  mutate(percentage = n / sum(n)) -> dane_wiz
 
-# Stwórz wykres
+#Stwórz wykres
 ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
   geom_col(position = "dodge") +
-  facet_wrap(~variable, scales = "free", ncol = 4) +
+  facet_wrap(~variable, scales = "free", ncol = 4)
   theme_minimal() +
-  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna)",
+  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna",
        title = "Proporcje zmiennych w zbiorze danych")
-
 ```
 
 Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz
@@ -844,7 +845,7 @@ przypadku sypialni najczęściej w nieruchomościach znajdują się 3.
 
 ```{r}
 #library(tidyverse)
-
+#???
 # Podział zmiennych "price" i "area" na przedziały
 dane %>%
   mutate(price_category = cut(price, breaks = 3),
@@ -1083,8 +1084,18 @@ ggplot(dane, aes(x=mainroad, y=price)) +
     facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
     scale_fill_brewer(palette="Set1")
 
+#???
+
+ggplot(dane_analiza, aes(x=mainroad, y=price)) +
+    geom_boxplot(alpha=0.7) +
+    stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
+    geom_jitter() +
+    facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
+    scale_fill_brewer(palette="Set1")
+
 
 ```
+
 
 Wykres przedstawia rozkład cen nieruchomości (price) w zależności od ich bliskości do głównej drogi (mainroad), z podziałem na preferowane i niepreferowane obszary. Czerwone punkty reprezentują średnią cenę dla każdej kategorii. Wydaje się, że średnia cena nieruchomości jest wyższa, gdy nieruchomość znajduje się blisko głównej drogi, niezależnie od preferencji obszaru.
 
@@ -1240,53 +1251,6 @@ Analiza korelacji na wykresie ukazuje powiązania pomiędzy ceną a rozmiarem mi
 
 
 
-
-
-## MACIERZ STARE
-
-```{r}
-
-#library(ggplot2)
-#library(corrplot)
-
-# Wybrane zmienne ilościowe
-zmienne_ilosciowe <- c("price", "area", "bathrooms", "bedrooms", "stories", "parking")
-
-# Tworzenie macierzy korelacji dla wybranych zmiennych
-corr_matrix <- cor(dane[, zmienne_ilosciowe])
-
-# Konfiguracja wykresu z większym dolnym marginesem
-par(mar = c(12, 2, 1, 1))
-
-# Tworzenie mapy cieplnej z adnotacjami
-corrplot(corr_matrix, method = "color", type = "upper", 
-         order = "hclust", tl.cex = 0.7, tl.col = "black", tl.srt = 45)
-
-# Dodanie tytułu z większym dolnym marginesem
-title(main = "Mapa macierzy korelacji", col.main = "blue", font.main = 4, cex.main = 1.2)
-
-
-```
-
-Mapa ta przedstawia korelację między różnymi zmiennymi (kolumnami) dla
-nieruchomosci w agencji nieruchomosci
-
-Pozytywne korelacje są oznaczone na niebiesko, a negatywne na czerwono;
-im ciemniejszy kolor, tym silniejsza korelacja. - price ma silną
-pozytywną korelację z area, co widać po ciemnoniebieskim kolorze. -
-mainroad ma negatywną korelację z stories, co widać po jasnoczerwonym
-kolorze. Pola na przekątnej od lewego górnego do prawego dolnego rogu są
-wszystkie ciemnoniebieskie, co wskazuje, że każda zmienna ma doskonałą
-pozytywną korelację ze sobą
-
-
-
-
-
-
-
-
-
 # 4. Wnioskowanie (testy statystyczne)
 
 W badaniu dotyczącym cen nieruchomości przeprowadzono szereg testów
@@ -1436,191 +1400,27 @@ są wyższe niż tych mniejszych.
 głównej*
 
 ```{r}
-set.seed(545)
+library(ggplot2)
 
-grouped_ggpiestats(
-  data         = dane,
-  x            = questroom,
-  grouping.var = am,
-  label.repel  = TRUE,
-  package      = "ggsci",
-  palette      = "default_ucscgb"
-)
-```
+#Liczymy liczebność dla każdej kategorii
+count <- table(dane$furnishingstatus)
 
-```{r}
-#######################ROBOCZEEEEEEEEEEEEE###################
-set.seed(545)
+#Tworzymy dataframe z danymi
+df <- data.frame(furnishingstatus = names(count), count = as.numeric(count))
 
-grouped_ggpiestats(
-  data         = dane,
-  x            = furnishingstatus,
-  grouping.var = am,
-  label.repel  = TRUE,
-  package      = "ggsci",
-  palette      = "default_ucscgb"
-)
-```
+#Obliczamy udział procentowy
+df$percent <- df$count / sum(df$count) * 100
 
-
-```{r}
-var(dane$price)
-install.packages("ggqqplot")
-library(ggqqplot)
-ggqqplot(dane$price)
-
-
+#Tworzymy wykres kołowy z etykietami procentowymi
+ggplot(df, aes(x = "", y = count, fill = furnishingstatus)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start=0) +
+  scale_fill_manual(values = c("grey", "lightblue", "darkblue")) +  # Ustawiamy kolory
+  theme_void() +
+  geom_text(aes(label = paste0(round(percent), "%")), position = position_stack(vjust = 0.5)) +  # Dodajemy etykiety procentowe
+  labs(title = "Udział rodzaju umeblowania")  # Dodajemy tytuł
 ```
 
 
 # 5. Podsumowanie i wnioski końcowe
 
-```{r}
-# roboczy chunk
-
-```
-
-```{r}
-# ilość braków danych dla poszczególnych zmiennych
-data.frame(braki = sapply(dane, function(x) sum(is.na(x)))) 
-# w danych nie występują braki
-
-#weryfikacja outlierów dla ceny zależej od powierzchni
-
-plot(dane$area, dane$price, main="Rozrzut cen vs. powierzchnia", xlab="Powierzchnia", ylab="Cena") 
-outliers <- boxplot(dane$price ~ dane$area, plot=FALSE)$out
-# Wyświetlenie wartości odstających
-if (length(outliers) > 0) {
-  cat("Wartości odstające dla ceny:\n")
-  print(outliers)
-} else {
-  cat("Brak wartości odstających dla ceny.\n")
-}
-
-#wyszły wartości odstające dla cen: #9240000 2345000 1750000 6650000 6160000 8890000 6405000 5033000 8400000 9681000 4690000 2870000 9100000
-# wartości te mogą być odstające ze zwględu na inne udogodnienia jak klimatyzacja, dostęp do głównej drogi itp więc nie możemy wykluczyć ich z dalszej analizy
-```
-
-```{r}
-
-# sprawdzanie korelacji między danymi
-
-# Konwersja zmiennych kategorycznych na numeryczne
-
-dane$mainroad <- as.numeric(dane$mainroad == "yes")
-dane$guestroom <- as.numeric(dane$guestroom == "yes")
-dane$basement <- as.numeric(dane$basement == "yes")
-dane$hotwaterheating <- as.numeric(dane$hotwaterheating == "yes")
-dane$airconditioning <- as.numeric(dane$airconditioning == "yes")
-dane$prefarea <- as.numeric(dane$prefarea == "yes")
-dane$furnishingstatus <- as.numeric(factor(dane$furnishingstatus, levels= c("unfurnished", "semi-furnished", "furnished")))
-
-correlation_matrix <- cor(dane) 
-print(correlation_matrix)
-
-install.packages("corrplot") 
-library(corrplot)
-corrplot(correlation_matrix, method="circle") 
-# najwększe korelacje występują między ceną a ilościa łazienek, powierzchnią lub klimatyzacją. Trochę mniejsze między ilością sypialni, stories bądź iloscią miejsc parkingowych a ceną
-
-```
-
-```{r}
-#obliczenie ceny za metr 
-dane$cena_na_metr <- dane$price / dane$area
-
-#analiza częstości występowania zmiennych kategorycznych - "udogodnień"
-# Częstość dostępu do drogi
-table(dane$mainroad)
-# Średnia cena dla dostępu do drogi
-aggregate(dane$price, by = list(dane$mainroad), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od dostępu do drogi
-boxplot(dane$price ~ dane$mainroad, main="Ceny w zależności od dostępu do drogi", xlab="Dostęp do drogi", ylab="Cena", col="lightblue")
-```
-
-```{r}
-
-# Częstość preferowanej okolicy
-table(dane$prefarea)
-# Średnia cena dla preferowanej okolicy
-aggregate(dane$price, by = list(dane$prefarea), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od preferowanej okolicy
-boxplot(dane$price ~ dane$prefarea, main="Ceny w zależności od preferowanej okolicy", xlab="Preferowana okolica", ylab="Cena", col="lightgreen")
-```
-
-```{r}
-# Częstość posiadania piwnicy
-table(dane$basement)
-# Średnia cena dla posiadania piwnicy
-aggregate(dane$price, by = list(dane$basement), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od posiadania piwnicy
-boxplot(dane$price ~ dane$basement, main="Ceny w zależności od posiadania piwnicy", xlab="Posiadanie piwnicy", ylab="Cena", col="lightcoral")
-```
-
-```{r}
-# Częstość posiadania klimatyzacji
-table(dane$airconditioning)
-# Średnia cena dla posiadania klimatyzacji
-aggregate(dane$price, by = list(dane$airconditioning), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od posiadania klimatyzacji
-boxplot(dane$price ~ dane$airconditioning, main="Ceny w zależności od klimatyzacji", xlab="Klimatyzacja", ylab="Cena", col="lightyellow")
-```
-
-```{r}
-# Częstość posiadania miejsc parkingowych
-table(dane$parking)
-# Średnia cena dla posiadania miejsc parkingowych
-aggregate(dane$price, by = list(dane$parking), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od posiadania miejsc parkingowych
-boxplot(dane$price ~ dane$parking, main="Ceny w zależności od miejsc parkingowych", xlab="Miejsca parkingowe", ylab="Cena", col="lightblue")
-```
-
-```{r}
-# Częstość statusu umeblowania
-table(dane$furnishingstatus)
-# Średnia cena dla różnych statusów umeblowania
-aggregate(dane$price, by = list(dane$furnishingstatus), FUN = mean)
-# Wykres pudełkowy dla ceny w zależności od statusu umeblowania
-boxplot(dane$price ~ dane$furnishingstatus, main="Ceny w zależności od statusu umeblowania", xlab="Status umeblowania", ylab="Cena", col="lightgreen")
-
-```
-
-```{r}
-# Utworzenie ramki danych z średnimi cenami dla różnych kategorii
-
-# Utworzenie ramki danych z średnimi cenami dla różnych kategorii
-avg_prices <- aggregate(dane$price, by = list(dane$mainroad, dane$prefarea, dane$basement, dane$hotwaterheating, dane$airconditioning, dane$parking, dane$furnishingstatus), FUN = mean)
-# Nadanie odpowiednich nazw kolumn w ramce danych
-colnames(avg_prices) <- c("mainroad", "prefarea", "basement", "hotwaterheating", "airconditioning", "parking", "furnishingstatus", "avg_price")
-# Wykres słupkowy grupowy
-library(ggplot2)
-ggplot(avg_prices, aes(x = mainroad, y = avg_price, fill = prefarea)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_grid(. ~ basement + hotwaterheating + airconditioning + parking + furnishingstatus) +
-  labs(title = "Średnie ceny nieruchomości w zależności od różnych kategorii",
-       x = "Dostęp do drogi", y = "Średnia cena") +
-  theme_minimal()
-```
-
-\`\`\`{r} \# Utworzenie ramki danych zawierającej kolumny z ceną i
-kategoriami udogodnień df \<- data.frame( price =
-dane$price, mainroad = as.factor(dane$mainroad), prefarea =
-as.factor(dane$prefarea), basement = as.factor(dane$basement),
-hotwaterheating =
-as.factor(dane$hotwaterheating), airconditioning = as.factor(dane$airconditioning),
-parking =
-as.factor(dane$parking), furnishingstatus = as.factor(dane$furnishingstatus)
-)
-
-# Przy użyciu ggplot2
-
-library(ggplot2)
-
-ggplot(df, aes(x = interaction(mainroad, prefarea, basement,
-hotwaterheating, airconditioning, parking, furnishingstatus), y =
-price)) + geom_boxplot(fill = "lightblue") + labs(title = "Zależność
-ceny od różnych udogodnień", x = "Udogodnienia", y = "Cena") +
-theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust =
-1))
-
-# za wiele nie widać na wykresach wspólnych ( dużo danych mało miejsca ) więc nie wiem czy nie lepiej zrobić to w oddzielnych
