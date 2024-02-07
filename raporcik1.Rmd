@@ -814,15 +814,15 @@ im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość.
 dane %>%
   gather(key = "variable", value = "value", -price, -area) %>%
   group_by(variable, value) %>%
-  summarise(n = n()) %>%
-  mutate(percentage = n / sum(n)) -> dane_wiz
+  summarise(count = n_distinct()) %>%
+  mutate(percentage = count / sum(count)) -> dane_wiz
 
 # Stwórz wykres
 ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
   geom_col(position = "dodge") +
-  facet_wrap(~variable, scales = "free", ncol = 4)
+  facet_wrap(~variable, scales = "free", ncol = 4) +
   theme_minimal() +
-  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna",
+  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna)",
        title = "Proporcje zmiennych w zbiorze danych")
 
 ```
