@@ -834,19 +834,6 @@ wykres <- wykres + ggplot2::labs(x = "Wartości", y = "Proporcja (%)", fill = "Z
 
 print(wykres)
 
-dane %>%
-  gather(key = "variable", value = "value", -price, -area) %>%
-  group_by(variable, value) %>%
-  summarise(n = n()) %>%
-  mutate(percentage = n / sum(n)) -> dane_wiz
-
-#Stwórz wykres
-ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
-  geom_col(position = "dodge") +
-  facet_wrap(~variable, scales = "free", ncol = 4)
-  theme_minimal() +
-  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna",
-       title = "Proporcje zmiennych w zbiorze danych")
 ```
 
 Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz
