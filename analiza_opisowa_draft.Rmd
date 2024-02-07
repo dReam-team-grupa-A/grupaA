@@ -401,6 +401,5 @@ corrplot(corr_matrix, method="color")
 
 ```
 
-```{r}
-#roboczy 
-```
+Analiza korelacji na wykresie ukazuje powiązania pomiędzy ceną a rozmiarem mieszkania, ilością sypialni, łazienek oraz liczbą pięter. Najwyższa korelacja występuje między ceną a powierzchnią (0.54) oraz ceną a ilością łazienek (0.52), co sugeruje, że istnieje umiarkowany dodatni związek między tymi zmiennymi. Innymi słowy, wzrost ceny często idzie w parze z większą powierzchnią mieszkania i większą liczbą łazienek.
+
