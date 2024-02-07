@@ -1089,13 +1089,30 @@ H0: normalność rozkładu
 normalnosc_test <- shapiro.test(dane$price)
 print(normalnosc_test)
 plot.new()
-hist(dane$price, freq = FALSE, main = "Histogram zmiennej price z krzywą gęstości", xlab = "price")
+hist(dane$price, freq = FALSE, main = "Histogram zmiennej price z krzywą gęstości", xlab = "price", col="lightblue", ylim = c(0, 0.08))
 lines(density(dane$price), col = "blue", lwd = 2)
 curve(dnorm(x, mean = mean(dane$price), sd = sd(dane$price)), col = "red", lwd = 2, add = TRUE)
 legend("topright", legend = c("Histogram", "Density", "Normal Distribution"), col = c("black", "blue", "red"), lwd = 2)
 
 
 ```
+## Jednorodność wariancji
+
+```{r}
+var(dane$price)
+##55.97671
+var(dane$area)
+##40647.65
+var.test(dane$price, dane$area, alternative="greater")  
+```
+Wynik testu wariancji sugeruje, że istnieją istotne różnice w wariancjach między grupami (p < 0,05). Ponadto, wartość F jest bardzo niska (0.0013771), co sugeruje, że wariancje między grupami są bardzo małe w porównaniu do wariancji wewnątrzgrupowej. Możemy więc wnioskować, że wariancje między grupami są istotnie różne, co może mieć istotne konsekwencje dla analizy statystycznej.
+
+## Test Wilcoxona 
+```{r}
+wilcox.test(dane$price, dane$area)
+
+```
+Test Wilcoxona dla porównania między zmiennymi price (cena) i area (powierzchnia) wykazał bardzo istotną różnicę pomiędzy grupami. Wartość p-value jest bardzo niska (< 2.2e-16), co oznacza, że istnieje istotna różnica w rozkładach obu zmiennych. Alternatywna hipoteza zakłada, że prawdziwa różnica w lokalizacji (medianie) między grupami nie wynosi zero. Wartość statystyki testowej W wynosi 0, co sugeruje, że wartość testu Wilcoxona jest bardzo niska, co oznacza, że rozkłady między zmiennymi różnią się znacząco.
 
 ##Shapiro test dla zmiennej price
 
@@ -1219,6 +1236,31 @@ grouped_ggpiestats(
   palette      = "default_ucscgb"
 )
 ```
+
+```{r}
+#######################ROBOCZEEEEEEEEEEEEE###################
+set.seed(545)
+
+grouped_ggpiestats(
+  data         = dane,
+  x            = furnishingstatus,
+  grouping.var = am,
+  label.repel  = TRUE,
+  package      = "ggsci",
+  palette      = "default_ucscgb"
+)
+```
+
+
+```{r}
+var(dane$price)
+install.packages("ggqqplot")
+library(ggqqplot)
+ggqqplot(dane$price)
+
+
+```
+
 
 # 5. Podsumowanie i wnioski końcowe
 
