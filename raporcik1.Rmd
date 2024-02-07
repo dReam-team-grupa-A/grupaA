@@ -1078,23 +1078,147 @@ pozytywną korelację ze sobą
 
 # 4. Wnioskowanie (testy statystyczne)
 
-W badaniu dotyczącym cen nieruchomości przeprowadzono szereg testów statystycznych, mających na celu zbadanie związków między cenami a różnymi zmiennymi, w tym powierzchnią mieszkania. Kluczowe wyniki obejmują testy normalności, testy Wilcoxona oraz analizę korelacji, które pomogły zrozumieć wzajemne relacje między analizowanymi zmiennymi.
+W badaniu dotyczącym cen nieruchomości przeprowadzono szereg testów
+statystycznych, mających na celu zbadanie związków między cenami a
+różnymi zmiennymi, w tym powierzchnią mieszkania.
 
-##Test i wykresy normalności
+##Test i wykresy normalności##\
 H0: normalność rozkładu
 
 ```{r}
-install.packages("ggpubr")
-library(ggpubr)
+normalnosc_test <- shapiro.test(dane$price)
+print(normalnosc_test)
+plot.new()
+hist(dane$price, freq = FALSE, main = "Histogram zmiennej price z krzywą gęstości", xlab = "price")
+lines(density(dane$price), col = "blue", lwd = 2)
+curve(dnorm(x, mean = mean(dane$price), sd = sd(dane$price)), col = "red", lwd = 2, add = TRUE)
+legend("topright", legend = c("Histogram", "Density", "Normal Distribution"), col = c("black", "blue", "red"), lwd = 2)
 
-ggqqplot(cena)
 
 ```
 
+##Shapiro test dla zmiennej price
 
+```{r}
+shapiro_test <- shapiro.test(dane$price)
+print(shapiro_test)
+```
 
+Wynik testu Shapiro-Wilka dla zmiennej price wskazuje na istotną
+statystycznie różnicę od rozkładu normalnego (p \< 0,05). Oznacza to, że
+zmienna price nie pochodzi z rozkładu normalnego. Wartość p równa
+3.155e-16 jest znacznie mniejsza niż 0,05, co sugeruje, że istnieją
+istotne odstępstwa od normalności.
 
+##Shapiro test dla zmiennej area
 
+```{r}
+shapiro_test_area <- shapiro.test(dane$area)
+print(shapiro_test_area)
+```
+
+Wynik testu Shapiro-Wilka dla zmiennej area również wskazuje na istotną
+statystycznie różnicę od rozkładu normalnego (p \< 0,05). Wartość p jest
+bardzo bliska zeru (mniejsza niż 2.2e-16), co oznacza, że istnieją
+istotne odstępstwa od normalności.
+
+##Testy porównawcze
+
+#Test T-studenta porównujący średnie ceny dla nieruchomości z i bez
+klimatyzacji
+
+```{r}
+library(stats)
+t_test_result <- t.test(price ~ airconditioning, data = dane)
+print(t_test_result)
+```
+
+Wynik testu t-studenta wskazuje na istotną statystycznie różnicę między
+grupami z i bez klimatyzacji (p \< 0,05).
+
+Wartość t = -10.659 oznacza, że istnieje istotna różnica między średnimi
+cenami nieruchomości w grupach z i bez klimatyzacji. df (stopnie
+swobody) wynoszące 262.47 oznacza, że stopnie swobody zostały oszacowane
+na 262.47, co odzwierciedla uwzględnienie nieliniowych efektów. Wartość
+p \< 2.2e-16 oznacza, że istnieje bardzo mała szansa, że obserwowana
+różnica między grupami jest wynikiem czystego przypadku. Interval
+ufności 95% (-8.630878, -5.939369) wskazuje, że średnia cena
+nieruchomości w grupie z klimatyzacją jest prawdopodobnie między -8.63 i
+-5.94 punktów procentowych niższa niż w grupie bez klimatyzacji. Średnia
+cena nieruchomości w grupie bez klimatyzacji wynosi 16.77, a w grupie z
+klimatyzacją wynosi 24.05. W związku z tym można stwierdzić, że istnieje
+istotna różnica w cenach nieruchomości między grupami z i bez
+klimatyzacji, przy czym ceny nieruchomości z klimatyzacją są wyższe.
+
+##Test anova dla zmiennej pokoje
+
+```{r}
+anova_result <- aov(price ~ bedrooms, data = dane)
+summary(anova_result)
+```
+
+Przeprowadzony test statystyczny ma dużą istotność, nie mamy więc
+podstaw do odrzucenia hipotezy zerowej. Wartość F jest stosunkowo wysoka
+(84.25), co wskazuje na istotny efekt grupowy. Oznacza to, że różnice w
+cenach nieruchomości między grupami sypialni są wystarczająco duże, aby
+uznać je za istotne statystycznie.Wartość p wynosi mniej niż ustalony
+poziom istotności (zwykle 0.05), co oznacza, że istnieją statystycznie
+istotne różnice w cenach nieruchomości między grupami sypialni.
+
+##Badanie rozkładu ilości sypialni względen ceny nieruchomości
+
+```{r}
+set.seed(545)
+#install.packages("ggstatsplot")
+library(ggstatsplot)
+ggbetweenstats(
+  data  = dane,
+  x     = bedrooms,
+  y     = price,
+  title = "Rozkład ilości sypialni względem ceny nieruchomości"
+)
+```
+
+Najwyższe piki cenowe zostały odnotowane dla mieszkań posiadających 4
+pokoje, niewiele niższą ceną szczycą się mieszkania 3 pokojowe.
+Mieszkania o większej ilosci pokoi mają niższy rozkład cen, na co
+wpływać może również obecność innych udogodnień takich jak preferowana
+okolica, dostęp do piwnicy bądź też klimatyzacja.
+
+##Wizualizacja##
+
+```{r}
+ggscatterstats(
+  data  = dane,
+  x     = price,
+  y     = area,
+  xlab  = "Price",
+  ylab  = "Area",
+  title = "Zależność ceny od powierzchni"
+)
+
+```
+
+Wykres pokazuje zależność ceny nieruchomkości od jej powierchni. Widać,
+że najwieszą część rynku stanowią mniejsze nieruchomości w niższych
+cenach. Ceny mieszkań o powierzchni większej w zdecydowanej większości
+są wyższe niż tych mniejszych.
+
+*Badanie udziału mieszkań na rynku posiadających dostęp do drogi
+głównej*
+
+```{r}
+set.seed(545)
+
+grouped_ggpiestats(
+  data         = dane,
+  x            = questroom,
+  grouping.var = am,
+  label.repel  = TRUE,
+  package      = "ggsci",
+  palette      = "default_ucscgb"
+)
+```
 
 # 5. Podsumowanie i wnioski końcowe
 
@@ -1227,12 +1351,12 @@ ggplot(avg_prices, aes(x = mainroad, y = avg_price, fill = prefarea)) +
 
 \`\`\`{r} \# Utworzenie ramki danych zawierającej kolumny z ceną i
 kategoriami udogodnień df \<- data.frame( price =
-dane$price,  mainroad = as.factor(dane$mainroad), prefarea =
-as.factor(dane$prefarea),  basement = as.factor(dane$basement),
+dane$price, mainroad = as.factor(dane$mainroad), prefarea =
+as.factor(dane$prefarea), basement = as.factor(dane$basement),
 hotwaterheating =
-as.factor(dane$hotwaterheating),  airconditioning = as.factor(dane$airconditioning),
+as.factor(dane$hotwaterheating), airconditioning = as.factor(dane$airconditioning),
 parking =
-as.factor(dane$parking),  furnishingstatus = as.factor(dane$furnishingstatus)
+as.factor(dane$parking), furnishingstatus = as.factor(dane$furnishingstatus)
 )
 
 # Przy użyciu ggplot2
