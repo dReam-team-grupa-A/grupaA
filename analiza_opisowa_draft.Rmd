@@ -87,4 +87,320 @@ str(dane)
 
 # Analiza opisowa 
 
+## Dodatkowy data wragling
 
+
+```{r wrangling, include=TRUE}
+# Przekształcenie danych jakościowych
+dane_analiza$mainroad <- as.numeric(dane_analiza$mainroad) 
+dane_analiza$guestroom <- as.numeric(dane_analiza$guestroom) 
+dane_analiza$basement <- as.numeric(dane_analiza$basement)
+dane_analiza$hotwaterheating <- as.numeric(dane_analiza$hotwaterheating)
+dane_analiza$airconditioning <- as.numeric(dane_analiza$airconditioning) 
+dane_analiza$prefarea <- as.numeric(dane_analiza$prefarea)  
+dane_analiza$furnishingstatus <- as.numeric(dane_analiza$furnishingstatus) 
+
+# Przekształcenie danych numerycznych (jeśli wymaga tego analiza)
+dane_analiza$price <- as.numeric(dane_analiza$price)
+dane_analiza$area <- as.numeric(dane_analiza$area)
+dane_analiza$bedrooms <- as.numeric(dane_analiza$bedrooms)
+dane_analiza$bathrooms <- as.numeric(dane_analiza$bathrooms)
+dane_analiza$stories <- as.numeric(dane_analiza$stories)
+dane_analiza$parking <- as.numeric(dane_analiza$parking)
+
+```
+
+## Wizualizacja zmiennej price
+```{r}
+library(ggplot2)
+
+# Tworzenie wykresu słupkowego
+wykres_slupkowy <- ggplot(dane_analiza, aes(x = price)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Rozkład cen mieszkań", x = "Cena (w mln PLN)", y = "Liczba mieszkań") +
+  theme_minimal()
+
+# Wyświetlenie wykresu
+print(wykres_slupkowy)
+ 
+```
+
+Za pomocą Metody Sturgesa, wyznaczamy przedziały dla zmiennej price 
+```{r}
+# Dane do analizy
+ceny_mieszkan <- dane_analiza$price
+
+# Wykorzystanie metody Sturgesa do automatycznego wyznaczenia liczby przedziałów
+liczba_przedzialow <- nclass.Sturges(ceny_mieszkan)
+
+# Wykorzystanie liczby przedziałów w funkcji cut()
+przedzialy <- cut(ceny_mieszkan, breaks = liczba_przedzialow)
+
+table(przedzialy)
+
+```
+
+## Tabele liczności oraz TAI
+
+W pierwszym etapie naszej analizy pogrupujemy dane na 3 przedziały w postać tabeli częstości.
+
+A następnie przygotujemy rozkład cen mieszkań w naszej próbie i zweryfikujmy poprawność tabelaryczną za pomocą miary TAI:
+
+
+```{r}
+# Przekształcenie cen mieszkań na zakresy zgodne z projektem2
+etykiety_projekt2 <- c("(6.95,11.2] mln PLN","(11.2,15.4] mln PLN", "(15.4,19.6] mln PLN", "(19.6,23.8] mln PLN", "(23.8,28] mln PLN", "(28,32.2] mln PLN", "(32.2,36.4] mln PLN", "(36.4,40.6] mln PLN", "(40.6,44.8] mln PLN", "(44.8,49] mln PLN", "(49,53.2] mln PLN")
+limits_projekt2 <- cut(dane_analiza$price, c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2), labels = etykiety_projekt2)
+tabela2 <- freq(limits_projekt2, type = "html")
+
+
+```
+
+```{r}
+kbl(tabela2, caption = "Mieszkania we Wrocławiu - ceny w PLN - Projekt2") %>%
+    kable_material(c("striped", "hover"))
+tab2 <- classIntervals(dane_analiza$price, n = 11, style = "fixed", fixedBreaks = c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2))
+jenks.tests(tab2)
+
+
+```
+
+Otrzymane wartości w wyniku testu Jena to oprócz classes, które informuje o ilości przedziałów(11 przedziałów), Goodness of fit(Jest to miara dobrej dopasowania danych do podziału na klas)o  wartości 0.9752304 wskazuje na to, jak dobrze dane pasują do podziału na trzy klasy cenowe. Im bliżej wartości 1, tym lepsze dopasowanie.Tabular accuracy (TAI), jako miara dokładności tabeli częstości w odniesieniu do danych, przedstawia wartość 0.8248048, która oznacza, jak dobrze tabela częstości odzwierciedla rzeczywisty rozkład danych. Im bliżej wartości 1, tym dokładniejsza jest tabela częstości.
+
+Wartości te wskazują na dobre dopasowanie podziału cen mieszkań na trzy przedziały oraz na poprawność tabelaryczną w odniesieniu do tych danych
+
+
+
+```{r histogram, echo=FALSE}
+
+hist(dane_analiza$price, breaks = c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2), col = "green", probability = TRUE,
+     main = "Rozkład cen mieszkań w zależności od stanu umeblowania", ylim = c(0, 0.1), xlab = "Cena mieszkania (mln PLN)")
+lines(density(dane_analiza$price[dane_analiza$furnishingstatus == "0"]), col = 2)
+lines(density(dane_analiza$price[dane_analiza$furnishingstatus == "1"]), col = 3)
+lines(density(dane_analiza$price[dane_analiza$furnishingstatus == "2"]), col = 4)
+legend("topright", legend = c("nieumeblowane", "średnio_umeblowane", "calkowicie_umeblowane"),
+       col = c(2, 3, 4), lty = 1:2, horiz = FALSE, box.lty = 0, cex = 1)
+
+
+```
+```{r boxplot, echo=FALSE}
+boxplot(dane_analiza$price ~ dane_analiza$furnishingstatus,
+        xlab = "Stan umeblowania",
+        ylab = "Cena mieszkania (mln PLN)",
+        names = c("Nieumeblowane", "Średnio umeblowane", "Całkowicie umeblowane"))
+
+```
+
+Dzięki wykresie pudełkowym, otrzymaliśmy rozkład cen mieszkań w różnych kategoriach stanu umeblowania, co pozwala porównać mediany, kwartyle i zakresy cen mieszkań między różnymi kategoriami: 
+
+Nieumeblowane mieszkania: Mediana ceny wynosi około 20 mln PLN. Pierwszy i trzeci kwartyl są blisko mediany, co wskazuje na mniejszą zmienność cen. Istnieją wartości odstające powyżej 30 mln PLN.
+
+Średnio umeblowane mieszkania: Mediana ceny wynosi około 25 mln PLN. Pierwszy i trzeci kwartyl są bardziej rozproszone niż dla nieumeblowanych mieszkań, co wskazuje na większą zmienność cen. Istnieje kilka wartości odstających powyżej 30 mln PLN.
+
+Całkowicie umeblowane mieszkania: Mediana ceny wynosi również około 25 mln PLN. Zakres międzykwartylny jest szeroki, z pierwszym kwartylem poniżej 20 mln PLN i trzecim kwartylem powyżej 30 mln PLN, co wskazuje na dużą zmienność cen. Istnieje kilka wartości odstających powyżej 40 mln PLN.
+
+
+## ggplot2 plots
+
+W tym rozdziale przedstawimy te same wykresy, ale z wykorzystaniem pakietów ***ggplot2*** i ***ggpubr***.
+
+```{r histogram2, echo=FALSE}
+library(dplyr)
+
+# Przekształcenie kolumny furnishingstatus na czynnik z odpowiednimi poziomami
+dane_analiza$furnishingstatus <- factor(dane_analiza$furnishingstatus,
+                                        levels = c("0", "1", "2"),
+                                        labels = c("nieumeblowane", "średnio umeblowane", "umeblowane"))
+
+# Density plot of "price"
+density.p <- ggdensity(dane_analiza, x = "price", 
+                       fill = "furnishingstatus", palette = "jco") +
+            stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Liczymy statystyki wg stanu umeblowania:
+stable <- desc_statby(dane_analiza, measure.var = "price",
+                      grps = "furnishingstatus")
+stable <- stable[, c("furnishingstatus", "length", "mean", "sd")]
+
+# Wykres, szablon "medium orange":
+stable.p <- ggtexttable(stable, rows = NULL, 
+                        theme = ttheme("mOrange"))
+
+# Podpisujemy wykres:
+text <- paste("Ceny mieszkań wg stanu umeblowania.",
+              "Losowa próba 200 mieszkań.",
+               sep = " ")
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+
+# Aranżujemy wykresy na tym samym panelu:
+ggarrange(density.p, stable.p, text.p, 
+          ncol = 1, nrow = 3,
+          heights = c(1, 0.5, 0.3))
+
+```
+
+
+Ggplot2 pozwala na pokazanie średniej wartości dla każdej grupy. 
+Wykres przedstawia rozkład cen mieszkań w zależności od ich umeblowania: nieumeblowane, średnio umeblowane i umeblowane. Mieszkania umeblowane są zazwyczaj droższe, co widać po wyższej średniej cenie. Wykres gęstości pokazuje znaczne pokrywanie się cen pomiędzy różnymi kategoriami, co wskazuje na różnorodność cen w ramach każdego statusu umeblowania.
+
+```{r boxplot2, echo=FALSE}
+ggplot(dane_analiza, aes(x=mainroad, y=price)) +
+    geom_boxplot(alpha=0.7) +
+    stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
+    geom_jitter() +
+    facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
+    scale_fill_brewer(palette="Set1")
+
+
+```
+
+Wykres przedstawia rozkład cen nieruchomości (price) w zależności od ich bliskości do głównej drogi (mainroad), z podziałem na preferowane i niepreferowane obszary. Czerwone punkty reprezentują średnią cenę dla każdej kategorii. Wydaje się, że średnia cena nieruchomości jest wyższa, gdy nieruchomość znajduje się blisko głównej drogi, niezależnie od preferencji obszaru.
+
+Wydaje się, że jest mniej nieruchomości w preferowanym obszarze, które nie mają dostępu do głównej drogi (mainroad=0). Można to interpretować jako wskazówkę, że większość nieruchomości w preferowanych obszarach ma dostęp do głównej drogi. 
+
+## Grupowanie grafik
+
+
+```{r facet1, echo=FALSE}
+plot702 <- ggplot(dane_analiza, aes(price, bathrooms)) + 
+  geom_abline() +
+  geom_jitter(width = 0.1, height = 0.1) 
+plot702 + facet_wrap(~furnishingstatus)
+
+```
+Wykres przedstawia zależność między ceną nieruchomości (price) a liczbą łazienek (bathrooms), z podziałem na status umeblowania (furnishingstatus). Czarne punkty reprezentują poszczególne nieruchomości. Dla nieruchomości “nieumeblowane” i “średnio umeblowane”, ceny generalnie rosną wraz ze wzrostem liczby łazienek. Dla nieruchomości “umeblowane”, ceny wydają się być podobne niezależnie od liczby łazienek, ale są generalnie wyższe w porównaniu do innych kategorii umeblowania.
+
+
+## Statystyki opisowe
+
+```{r}
+summary(dane_analiza)
+```
+**price** - Średnia cena badanych nieruchomości to 19.1 mln PLN. Dla połowy nieruchomości cena nie przekracza 17.36 mln PLN Najniższa zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. 
+**area** - Średnia powierzchnia to 478.5 m2. Najmniejsza nieruchomość ma powierzchnię 153.3 m2 a największa 1503 m2. Dla połowy nieruchomości powierzchnia nie przekracza 427.4m2. 
+**bedrooms** - Nieruchomości mają od 1 do 6 sypialni, połowa z nich nie ma więcej niż 3 sypialnie. 
+**bathrooms** - Nieruchomości mają od 1 do 4 łazienki, jednak połowa z nich ma jedynie 1 łazienkę
+**stories** - Nieruchomości mają od 1 do 4 pięter, połowa z nich nie ma więcej niż 2 pięter. 
+**mainroad** - Większość nieruchomości ma dostęp do drogi głównej. 
+**guestroom** - Większość nieruchomości nie posiada pokoju gościnnego. 
+**basement** - Większość nieruchomości nie posiada piwnicy
+**hotwaterheating** - Większość nieruchomości nie ma systemu podgrzewania wody
+**airconditioning** - Większość nieruchomości nie ma klimatyzacji 
+**parking** - Nieruchomości mają liczbę miejsc parkingowych od 0 do 3 jednak większość z nich, nie posiada miejsca parkingowego. 
+**furnishingstatus** - Istnieje 178 nieruchomości nieumeblowanych, 227 nieruchomości średnio umeblowanych, oraz 140 nieruchomości całkowicie umeblowanych. 
+
+
+
+```{r}
+describe(dane_analiza)
+```
+
+
+
+## Podsumowanie opisu danych
+
+
+zmierzenie tendencji centralnej rozkładu cen
+```{r kable_report, echo=FALSE}
+library(kableExtra)
+
+dane_analiza_sorted <- dane_analiza[order(dane_analiza$bedrooms), ]
+mieszkania_list <- split(dane_analiza_sorted$price, dane_analiza_sorted$bedrooms)
+
+# Tworzenie ramki danych dla tabeli
+inline_plot <- data.frame(
+  bedrooms = unique(dane_analiza_sorted$bedrooms),
+  boxplot = "",
+  histogram = "",
+  line1 = "",
+  line2 = "",
+  points1 = ""
+)
+
+# Obliczenie tendencji centralnej rozkładu cen
+mean_price <- mean(dane_analiza_sorted$price)
+median_price <- median(dane_analiza_sorted$price)
+mode_price <- names(sort(table(dane_analiza_sorted$price), decreasing = TRUE))[1]
+
+# Dodanie obliczeń do tabeli
+inline_plot$Mean <- mean_price
+inline_plot$Median <- median_price
+inline_plot$Mode <- mode_price
+
+inline_plot %>%
+  kbl(booktabs = TRUE) %>%
+  kable_paper(full_width = FALSE) %>%
+  column_spec(2, image = spec_boxplot(mieszkania_list)) %>%
+  column_spec(3, image = spec_hist(mieszkania_list)) %>%
+  column_spec(4, image = spec_plot(mieszkania_list, same_lim = TRUE)) %>%
+  column_spec(5, image = spec_plot(mieszkania_list, same_lim = FALSE)) %>%
+  column_spec(6, image = spec_plot(mieszkania_list, type = "p"))
+
+
+```
+
+
+Podsumowanie podstawowych miar tendencji centralnej dla cen według liczby sypialni
+
+```{r kable_report2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+library(psych)
+raport <-
+  list("Cena w PLN" =
+       list("Min"= ~ min(price),
+            "Max"= ~ max(price),
+            "Kwartyl dolny"= ~ quantile(price,0.25),
+            "Mediana"= ~ round(median(price),2),
+            "Kwartyl górny"= ~ quantile(price,0.75),
+            "Średnia"= ~ round(mean(price),2),
+            "Odch. std."= ~ round(sd(price),2),
+            "IQR"= ~ round(iqr(price),2),
+            "Odchylenie ćwiartkowe"=~round(iqr(price)/2,2),
+            "Odch. std. w %"=~round((sd(price)/mean(price)),2),
+            "Odch. ćwiartkowe w %"=~round((iqr(price)/median(price)),2),
+            "Skośność"=~round(skew(price),2),
+            "Kurtoza"=~round(kurtosi(price),2)
+            ))
+tabela<-summary_table(dane_analiza, summaries = raport, by = c("bedrooms"))
+
+knitr::kable(tabela,
+  digits = 2,
+  align = "lcccc",
+  caption="Tabela 1. Mieszkania- ceny w mln PLN wg liczby sypialni",
+  col.names = c("Statystyka","1 sypialnia", "2 sypialnie", "3 sypialnie", "4 sypialnie", "5 sypialnie", "6 sypialnie")) 
+```
+
+Drugi sposob: 
+
+```{r}
+library(gtsummary)
+dane_analiza %>%
+  select(price,bedrooms) %>%
+  tbl_summary(
+    by=bedrooms,
+    type = all_continuous() ~ "continuous2",
+    statistic = all_continuous() ~ c(
+      "{N_nonmiss}","{mean}","{sd}",
+      "{median} ({p25}, {p75})",
+      "{min}, {max}"),
+    missing = "no",
+    label = price ~ "Cena") %>%
+  modify_header(label ~ "**Zmienna**") %>%
+  modify_caption("**Tabela 1. Rozkład cen wg liczby sypialni**") %>%
+  bold_labels() %>% 
+  add_p(pvalue_fun = ~ style_pvalue(.x, digits = 2))
+```
+
+## Macierze korelacji
+
+```{r bivariate, echo=FALSE, warning=TRUE}
+corrplot(cor(dane_analiza[,1:4]), method = "number", type = "upper", diag =FALSE)
+
+corr_matrix<-cor(dane_analiza[,1:4])
+corrplot(corr_matrix, method="color")
+
+
+```
+
+```{r}
+#roboczy 
+```
