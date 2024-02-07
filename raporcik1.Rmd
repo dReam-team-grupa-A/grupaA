@@ -90,7 +90,7 @@ istotnie wpływać na cenę domu.
 Podstawą analizy jest baza danych nieruchomości wystawionych na
 sprzedaż, dostępnych w pewnej agencji nieruchomości.
 
-```{r}
+```{r wczytaniedanych, echo=TRUE}
 # wczytanie danych
 library(readxl) 
 dane <- read.csv("agencja_nieruchomosci.csv")
@@ -132,7 +132,7 @@ Dane poddane analizie zawieraja ponizsze zmienne:
 -   **furnishingstatus** - status umeblowania domu (w pełni umeblowany,
     częściowo umeblowany, nieumeblowany)
 
-```{r}
+```{r struktura_danych, echo=TRUE}
 # struktura danych 
 str(dane)
 ```
@@ -147,7 +147,7 @@ Zbiór danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te
 dane w taki sposób, że: no-"0" yes-"1" dla kolumn: mainroad, guestroom,
 basement, hotwaterheating, airconditioning, prefarea.
 
-```{r}
+```{r dane_yes_no, echo=TRUE}
 # zamiana yes/no na 1/0
 dane$mainroad <- ifelse(dane$mainroad == 'yes', 1, 0)
 dane$guestroom  <- ifelse(dane$guestroom  == 'yes', 1, 0)
@@ -162,7 +162,7 @@ dane$prefarea  <- ifelse(dane$prefarea  == 'yes', 1, 0)
 W przypadku kolumny furnishingstatus zmienimy poniższe statusty na
 wartości: unfurnished - "0" semi-furnished - "1" furnished - "2"
 
-```{r}
+```{r furnishingstatus_zmiana, echo=TRUE}
 # Zamiana wartości w kolumnie 'furnishingstatus'
 dane$furnishingstatus <- ifelse(dane$furnishingstatus == 'unfurnished', 0,
                                   ifelse(dane$furnishingstatus == 'semi-furnished', 1,
@@ -175,7 +175,7 @@ dane$furnishingstatus <- ifelse(dane$furnishingstatus == 'unfurnished', 0,
 Dane z kolumny price zamienimy z cen w dolarach na ceny w polskich
 złotych.
 
-```{r}
+```{r waluta_zmiana, echo=TRUE}
 # Kurs wymiany
 kurs_wymiany <- 4.00
 # 1USD=4.00PLN na dzien 4/02/2024
@@ -190,7 +190,7 @@ dane$price <- dane$price * kurs_wymiany
 Natomiast dane z kolumny area zamienimy z powierzchni mierzonej w
 stopach kwadratowych na powierzchnię mierzoną w metrach kwadratowych.
 
-```{r}
+```{r metraz_zmiana, echo=TRUE}
 # Współczynnik konwersji z stóp kwadratowych na metry kwadratowe
 wspolczynnik_konwersji <- 0.092903
 
@@ -198,14 +198,14 @@ wspolczynnik_konwersji <- 0.092903
 dane$area <- dane$area * wspolczynnik_konwersji
 ```
 
-```{r}
+```{r struktura_danych2, echo=TRUE}
 # ponowne wyswietlenie struktura danych 
 str(dane)
 ```
 
 ### Sprawdzenie czy występują brakujące dane
 
-```{r}
+```{r braki_danych, echo=TRUE}
 data.frame(braki = sapply(dane, function(x) sum(is.na(x))))
 
 ```
@@ -214,7 +214,7 @@ W zbiorze nie występują braki danych.
 
 Sprawdzamy jakie skrajne wartosci osiagaja poszczegolne zmienne.
 
-```{r}
+```{r zakresy_danych, echo=TRUE}
 # zakres osiąganych wartości dla zmiennych ilościowych
 psych::describe(dane[, c(1:5, 11)])
 
@@ -223,7 +223,7 @@ psych::describe(dane[, c(1:5, 11)])
 Jak widać ceny osiągają milionowe wartości. Aby nie operować bardzo
 dużymi liczbami wyrazimy je w mln PLN.
 
-```{r}
+```{r mln_PLN, echo=TRUE} 
 # przeliczenia wartości zmiennej price 
 dane <- dane %>%
   mutate(price = price/10^6)
@@ -231,7 +231,7 @@ dane <- dane %>%
 
 ### Sprawdzenie czy w danych występują duplikaty
 
-```{r}
+```{r duplikaty, echo=TRUE}
 # Przypisanie danych bez duplikatów do nowej zmiennej
 dane_unikalne <- unique(dane)
 
@@ -249,7 +249,7 @@ if (czy_duplikaty) {
 Sprawdzamy czy w zbiorze danych wystepuja wartosci ujemne. W zadnej
 zmiennej wartosci nie powinny byc ujemne.
 
-```{r}
+```{r ujemne, echo=TRUE}
 # Sprawdzenie, czy istnieją wartości ujemne w dowolnej kolumnie
 czy_sa_ujemne <- any(sapply(dane, function(x) any(x < 0)))
 
@@ -266,7 +266,7 @@ if (czy_sa_ujemne) {
 
 ### Sprawdzenie obserwacji odstających -jednowymiarowe
 
-```{r}
+```{r odstajace1, echo=TRUE}
 
 par(mfrow = c(2, 2), cex.axis = 1.5, las = 2, mar = c(5, 5, 2, 2))
 for (col in colnames(dane)) {
@@ -312,7 +312,7 @@ parkingowymi.
 
 Poniżej przygotowano wykresy rozrzutu dla posiadanych danych.
 
-```{r}
+```{r odstajace2, echo=TRUE}
 # Stworzenie wykresu punktowego (scatterplot matrix) z dostosowanymi parametrami
 par(mfrow = c(1, 1), mar = c(2, 2, 2, 2))  # Ustawienie jednego obszaru wykresu i marginesów
 
@@ -351,7 +351,7 @@ bardziej uważana za odstającą.
 Identyfikacja obserwacji odstających w danych liczbowych przy założeniu,
 że wartość bezwzględna wieksza niż 3:
 
-```{r}
+```{r odstajace3, echo=TRUE}}
 kolumny <- c("price", "area", "bedrooms", "bathrooms", "stories", "parking")
 conditions <- as.data.frame(lapply(dane[, kolumny], function(x) abs(scale(x)) > 3))
 summary(conditions)
@@ -374,7 +374,7 @@ podobna liczbe miejsc parkingowych
 
 ### Test Grubbsa (test T)
 
-```{r}
+```{r test_grubbsa, echo=TRUE}
 #Test Grubbsa dla zmiennej price (cena)
 grubbs.test(dane$price)
 ```
@@ -403,7 +403,7 @@ wartością odstającą.
 
 Poniżej Test Grubbsa dla pozostalych zmiennych:
 
-```{r}
+```{r test_grubbsa2, echo=TRUE}
 grubbs.test(dane$area)
 grubbs.test(dane$bedrooms)
 grubbs.test(dane$bathrooms)
@@ -421,9 +421,9 @@ W tej części opracowano wizualizację danych w postaci: wizualizacja
 ilości, wizualizacja rozkładów, wizualizacja proporcji, wizualizacja
 trendów.
 
-## Wizualizacja zmiennych - histogramy
+## Wizualizacja zmiennych ilościowych
 
-```{r}
+```{r ilosciowe, echo=TRUE}
 library(gridExtra)
 # histogramy dla zmiennych ilościowych
 plot1 <- ggplot(dane, aes(x = area)) + 
@@ -466,7 +466,7 @@ zmienne jakościowe.
 
 ## Jakościowe zmienne objaśniające
 
-```{r,}
+```{r zmienne_objasniajace, echo=TRUE}}
 # wykres słupkowy dla zmiennej mainroad
 tab <- as.data.frame(100*prop.table(table(dane$mainroad)))
 plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
@@ -573,7 +573,7 @@ różnych cech, takich jak liczba sypialni, łazienek czy pięter.
 Histogramy prezentują, jak ceny zmieniają się w zależności od tych cech,
 co pomaga zrozumieć ich wpływ na wartość nieruchomości.
 
-```{r}
+```{r rozklad1, echo=TRUE}
 # Tworzenie histogramu wzgledem liczby sypialni
 ggplot(dane, aes(x = bedrooms, y = price, fill = factor(bedrooms))) +  
   geom_histogram(stat = "identity", position = "dodge", color = "black") +  
@@ -670,7 +670,7 @@ wskazują na większe prawdopodobieństwo wystąpienia wartości w danym
 przedziale, co pozwala lepiej zrozumieć charakterystykę danych i ich
 rozkład.
 
-```{r}
+```{r gestosci, echo=TRUE}
 
 # Wizualizacji gęstości cen względem liczby sypialni
 ggplot(dane, aes(x = price, fill = factor(bedrooms))) +
@@ -817,7 +817,7 @@ im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość.
 
 ## Wizualizacja proporcji
 
-```{r}
+```{r proporcje, echo=TRUE}
 library(dplyr)   
 library(ggplot2) 
 dane_wiz <- dane
@@ -851,7 +851,7 @@ piwnicę posiadają. Jesli chodzi o wykres przedstawiający ilosć lazienek
 zauwazamy, że trendują mieszkania posiadające jedną łazienkę, w
 przypadku sypialni najczęściej w nieruchomościach znajdują się 3.
 
-```{r}
+```{r proporcje2, echo=TRUE}
 library(dplyr)
 library(ggplot2)
 
@@ -880,7 +880,7 @@ sredniej powierzchni. Najmniej danych (blisko 0%) dotyczy nieruchomości
 o niskiej cenie i dużej powierzchni oraz o wysokiej cenie i małej
 powierzchni.
 
-```{r}
+```{r bombelkowy, echo=TRUE}}
 
 
 dane %>%
@@ -909,7 +909,7 @@ Wykres rozrzutu (scatter plot) jest jednym z podstawowych narzędzi do
 analizy trendów w danych. Wizualizuje relacje miedzy dwoma zmienymi, w
 tym przypadku powierzchni do ceny co moze pomoc w indenyfkacji trendów.
 
-```{r}
+```{r trendy, echo=TRUE}
 # wykres rozrzutu
 ggplot(dane, aes(x = area, y = price)) +
   geom_point() +
@@ -953,7 +953,7 @@ dane$parking <- as.numeric(dane$parking)
 
 ## Wizualizacja zmiennej price
 
-```{r}
+```{r wizualizacja_price, echo=TRUE}
 # Tworzenie wykresu słupkowego
 wykres_slupkowy <- ggplot(dane, aes(x = price)) +
   geom_bar(fill = "skyblue", color = "black") +
@@ -967,7 +967,7 @@ print(wykres_slupkowy)
 
 Za pomocą Metody Sturgesa, wyznaczamy przedziały dla zmiennej price
 
-```{r}
+```{r metoda_strurgesa, echo=TRUE}
 # Dane do analizy
 ceny_mieszkan <- dane$price
 
@@ -989,7 +989,7 @@ postać tabeli częstości.
 A następnie przygotujemy rozkład cen mieszkań w naszej próbie i
 zweryfikujmy poprawność tabelaryczną za pomocą miary TAI:
 
-```{r}
+```{r TAI, echo=TRUE}
 # Przekształcenie cen mieszkań na zakresy zgodne z projektem2
 etykiety_projekt2 <- c("(6.95,11.2] mln PLN","(11.2,15.4] mln PLN", "(15.4,19.6] mln PLN", "(19.6,23.8] mln PLN", "(23.8,28] mln PLN", "(28,32.2] mln PLN", "(32.2,36.4] mln PLN", "(36.4,40.6] mln PLN", "(40.6,44.8] mln PLN", "(44.8,49] mln PLN", "(49,53.2] mln PLN")
 limits_projekt2 <- cut(dane$price, c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2), labels = etykiety_projekt2)
@@ -997,7 +997,7 @@ tabela2 <- freq(limits_projekt2, type = "html")
 
 ```
 
-```{r}
+```{r TAI2, echo=TRUE}
 kbl(tabela2, caption = "Mieszkania we Wrocławiu - ceny w PLN - Projekt2") %>%
     kable_material(c("striped", "hover"))
 tab2 <- classIntervals(dane$price, n = 11, style = "fixed", fixedBreaks = c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2))
@@ -1141,7 +1141,7 @@ dostęp do głównej drogi.
 
 ## Grupowanie grafik
 
-```{r facet1, echo=FALSE}
+```{r grupowanie, echo=FALSE}
 plot702 <- ggplot(dane, aes(price, bathrooms)) + 
   geom_abline() +
   geom_jitter(width = 0.1, height = 0.1) 
@@ -1160,7 +1160,7 @@ kategorii umeblowania.
 
 ## Statystyki opisowe
 
-```{r}
+```{r summary_chunk, echo=TRUE}
 summary(dane)
 ```
 
@@ -1185,7 +1185,7 @@ jednak większość z nich, nie posiada miejsca parkingowego.
 nieruchomości średnio umeblowanych, oraz 140 nieruchomości całkowicie
 umeblowanych.
 
-```{r}
+```{r describe_chunk, echo=TRUE}
 describe(dane)
 ```
 
@@ -1263,7 +1263,7 @@ knitr::kable(tabela,
 
 Drugi sposob:
 
-```{r}
+```{r drugi, echo=TRUE}
 library(gtsummary)
 dane %>%
   select(price,bedrooms) %>%
@@ -1310,7 +1310,7 @@ różnymi zmiennymi, w tym powierzchnią mieszkania.
 ##Test i wykresy normalności##\
 H0: normalność rozkładu
 
-```{r}
+```{r normalnosc, echo=TRUE}
 normalnosc_test <- shapiro.test(dane$price)
 print(normalnosc_test)
 plot.new()
@@ -1324,7 +1324,7 @@ legend("topright", legend = c("Histogram", "Density", "Normal Distribution"), co
 
 ## Jednorodność wariancji
 
-```{r}
+```{r jednorodnosc, echo=TRUE}
 var(dane$price)
 ##55.97671
 var(dane$area)
@@ -1341,7 +1341,7 @@ konsekwencje dla analizy statystycznej.
 
 ## Test Wilcoxona
 
-```{r}
+```{r test_wilcoxona, echo=TRUE}
 wilcox.test(dane$price, dane$area)
 
 ```
@@ -1357,7 +1357,7 @@ zmiennymi różnią się znacząco.
 
 ## Shapiro test dla zmiennej price
 
-```{r}
+```{r Shapiro, echo=TRUE}
 shapiro_test <- shapiro.test(dane$price)
 print(shapiro_test)
 ```
@@ -1370,7 +1370,7 @@ istotne odstępstwa od normalności.
 
 ## Shapiro test dla zmiennej area
 
-```{r}
+```{r Shapiro2, echo=TRUE}
 shapiro_test_area <- shapiro.test(dane$area)
 print(shapiro_test_area)
 ```
@@ -1384,7 +1384,7 @@ istotne odstępstwa od normalności.
 
 ## Test T-studenta porównujący średnie ceny dla nieruchomości z i bez klimatyzacji
 
-```{r}
+```{r test_t_student, echo=TRUE}
 library(stats)
 t_test_result <- t.test(price ~ airconditioning, data = dane)
 print(t_test_result)
@@ -1409,7 +1409,7 @@ klimatyzacji, przy czym ceny nieruchomości z klimatyzacją są wyższe.
 
 ## Test anova dla zmiennej pokoje
 
-```{r}
+```{r test_anova, echo=TRUE}
 anova_result <- aov(price ~ bedrooms, data = dane)
 summary(anova_result)
 ```
@@ -1424,7 +1424,7 @@ istotne różnice w cenach nieruchomości między grupami sypialni.
 
 ## Udział mieszkań z różnym stanem umeblowania na rynku nieruchomości
 
-```{r}
+```{r udzial_mieszkan, echo=TRUE}
 library(ggplot2)
 count <- table(dane$furnishingstatus)
 df <- data.frame(furnishingstatus = names(count), count = as.numeric(count))
@@ -1441,7 +1441,7 @@ ggplot(df, aes(x = "", y = count, fill = furnishingstatus)) +
 
 ## Badanie rozkładu ilości sypialni względen ceny nieruchomości
 
-```{r}
+```{r rozklad_ilosci_sypialni, echo=TRUE}
 set.seed(545)
 #install.packages("ggstatsplot")
 library(ggstatsplot)
@@ -1461,7 +1461,7 @@ okolica, dostęp do piwnicy bądź też klimatyzacja.
 
 ## Wizualizacja
 
-```{r}
+```{r wizualzacja_zaleznosci, echo=TRUE}
 ggscatterstats(
   data  = dane,
   x     = price,
