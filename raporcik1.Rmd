@@ -954,8 +954,6 @@ dane$parking <- as.numeric(dane$parking)
 ## Wizualizacja zmiennej price
 
 ```{r}
-library(ggplot2)
-
 # Tworzenie wykresu słupkowego
 wykres_slupkowy <- ggplot(dane, aes(x = price)) +
   geom_bar(fill = "skyblue", color = "black") +
