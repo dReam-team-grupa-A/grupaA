@@ -141,7 +141,7 @@ str(dane)
 
 ## Walidacja danych
 
-### dane w kolumnach gdzie yes/no
+### Dane w kolumnach gdzie yes/no
 
 Zbiór danych posiada kolumny zawierajace dane "yes" "no". Zastąpimy te
 dane w taki sposób, że: no-"0" yes-"1" dla kolumn: mainroad, guestroom,
@@ -157,7 +157,7 @@ dane$airconditioning  <- ifelse(dane$airconditioning  == 'yes', 1, 0)
 dane$prefarea  <- ifelse(dane$prefarea  == 'yes', 1, 0)
 ```
 
-### dane z kolumny furnishingstatus
+### Dane z kolumny furnishingstatus
 
 W przypadku kolumny furnishingstatus zmienimy poniższe statusty na
 wartości: unfurnished - "0" semi-furnished - "1" furnished - "2"
@@ -170,7 +170,7 @@ dane$furnishingstatus <- ifelse(dane$furnishingstatus == 'unfurnished', 0,
 
 ```
 
-### dane z kolumny price
+### Dane z kolumny price
 
 Dane z kolumny price zamienimy z cen w dolarach na ceny w polskich
 złotych.
@@ -185,7 +185,7 @@ dane$price <- dane$price * kurs_wymiany
 
 ```
 
-### dane z kolumny area
+### Dane z kolumny area
 
 Natomiast dane z kolumny area zamienimy z powierzchni mierzonej w
 stopach kwadratowych na powierzchnię mierzoną w metrach kwadratowych.
@@ -564,7 +564,6 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
 
-
 ## Wizualizacja rozkładów
 
 ### Histogramy rozkładu cen nieruchomości względem zmiennych
@@ -895,10 +894,10 @@ ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percent
 Powyższa mapa cieplna jest wizualizacją proporcji zmiennych price i
 area. Oś x przedstawia ceny (price z podzialem na 3 przedziały,
 natomiast oś y przedstawia zmienną area również z podziałem na 3
-przedziały. Większość danych dotyczy nieruchomości o
-średniej cenie i sredniej powierzchni. Najmniej danych (blisko 0%)
-dotyczy nieruchomości o niskiej cenie i dużej powierzchni oraz o
-wysokiej cenie i małej powierzchni.
+przedziały. Większość danych dotyczy nieruchomości o średniej cenie i
+sredniej powierzchni. Najmniej danych (blisko 0%) dotyczy nieruchomości
+o niskiej cenie i dużej powierzchni oraz o wysokiej cenie i małej
+powierzchni.
 
 ```{r}
 
@@ -972,6 +971,7 @@ dane$parking <- as.numeric(dane$parking)
 ```
 
 ## Wizualizacja zmiennej price
+
 ```{r}
 library(ggplot2)
 
@@ -986,7 +986,8 @@ print(wykres_slupkowy)
  
 ```
 
-Za pomocą Metody Sturgesa, wyznaczamy przedziały dla zmiennej price 
+Za pomocą Metody Sturgesa, wyznaczamy przedziały dla zmiennej price
+
 ```{r}
 # Dane do analizy
 ceny_mieszkan <- dane$price
@@ -1003,10 +1004,11 @@ table(przedzialy)
 
 ## Tabele liczności oraz TAI
 
-W pierwszym etapie naszej analizy pogrupujemy dane na 3 przedziały w postać tabeli częstości.
+W pierwszym etapie naszej analizy pogrupujemy dane na 3 przedziały w
+postać tabeli częstości.
 
-A następnie przygotujemy rozkład cen mieszkań w naszej próbie i zweryfikujmy poprawność tabelaryczną za pomocą miary TAI:
-
+A następnie przygotujemy rozkład cen mieszkań w naszej próbie i
+zweryfikujmy poprawność tabelaryczną za pomocą miary TAI:
 
 ```{r}
 # Przekształcenie cen mieszkań na zakresy zgodne z projektem2
@@ -1025,11 +1027,18 @@ jenks.tests(tab2)
 
 ```
 
-Otrzymane wartości w wyniku testu Jena to oprócz classes, które informuje o ilości przedziałów(11 przedziałów), Goodness of fit(Jest to miara dobrej dopasowania danych do podziału na klas)o  wartości 0.9752304 wskazuje na to, jak dobrze dane pasują do podziału na trzy klasy cenowe. Im bliżej wartości 1, tym lepsze dopasowanie.Tabular accuracy (TAI), jako miara dokładności tabeli częstości w odniesieniu do danych, przedstawia wartość 0.8248048, która oznacza, jak dobrze tabela częstości odzwierciedla rzeczywisty rozkład danych. Im bliżej wartości 1, tym dokładniejsza jest tabela częstości.
+Otrzymane wartości w wyniku testu Jena to oprócz classes, które
+informuje o ilości przedziałów(11 przedziałów), Goodness of fit(Jest to
+miara dobrej dopasowania danych do podziału na klas)o wartości 0.9752304
+wskazuje na to, jak dobrze dane pasują do podziału na trzy klasy cenowe.
+Im bliżej wartości 1, tym lepsze dopasowanie.Tabular accuracy (TAI),
+jako miara dokładności tabeli częstości w odniesieniu do danych,
+przedstawia wartość 0.8248048, która oznacza, jak dobrze tabela
+częstości odzwierciedla rzeczywisty rozkład danych. Im bliżej wartości
+1, tym dokładniejsza jest tabela częstości.
 
-Wartości te wskazują na dobre dopasowanie podziału cen mieszkań na trzy przedziały oraz na poprawność tabelaryczną w odniesieniu do tych danych
-
-
+Wartości te wskazują na dobre dopasowanie podziału cen mieszkań na trzy
+przedziały oraz na poprawność tabelaryczną w odniesieniu do tych danych
 
 ```{r histogram, echo=FALSE}
 
@@ -1043,6 +1052,7 @@ legend("topright", legend = c("nieumeblowane", "średnio_umeblowane", "calkowici
 
 
 ```
+
 ```{r boxplot, echo=FALSE}
 boxplot(dane$price ~ dane$furnishingstatus,
         xlab = "Stan umeblowania",
@@ -1051,18 +1061,29 @@ boxplot(dane$price ~ dane$furnishingstatus,
 
 ```
 
-Dzięki wykresie pudełkowym, otrzymaliśmy rozkład cen mieszkań w różnych kategoriach stanu umeblowania, co pozwala porównać mediany, kwartyle i zakresy cen mieszkań między różnymi kategoriami: 
+Dzięki wykresie pudełkowym, otrzymaliśmy rozkład cen mieszkań w różnych
+kategoriach stanu umeblowania, co pozwala porównać mediany, kwartyle i
+zakresy cen mieszkań między różnymi kategoriami:
 
-Nieumeblowane mieszkania: Mediana ceny wynosi około 20 mln PLN. Pierwszy i trzeci kwartyl są blisko mediany, co wskazuje na mniejszą zmienność cen. Istnieją wartości odstające powyżej 30 mln PLN.
+Nieumeblowane mieszkania: Mediana ceny wynosi około 20 mln PLN. Pierwszy
+i trzeci kwartyl są blisko mediany, co wskazuje na mniejszą zmienność
+cen. Istnieją wartości odstające powyżej 30 mln PLN.
 
-Średnio umeblowane mieszkania: Mediana ceny wynosi około 25 mln PLN. Pierwszy i trzeci kwartyl są bardziej rozproszone niż dla nieumeblowanych mieszkań, co wskazuje na większą zmienność cen. Istnieje kilka wartości odstających powyżej 30 mln PLN.
+Średnio umeblowane mieszkania: Mediana ceny wynosi około 25 mln PLN.
+Pierwszy i trzeci kwartyl są bardziej rozproszone niż dla
+nieumeblowanych mieszkań, co wskazuje na większą zmienność cen. Istnieje
+kilka wartości odstających powyżej 30 mln PLN.
 
-Całkowicie umeblowane mieszkania: Mediana ceny wynosi również około 25 mln PLN. Zakres międzykwartylny jest szeroki, z pierwszym kwartylem poniżej 20 mln PLN i trzecim kwartylem powyżej 30 mln PLN, co wskazuje na dużą zmienność cen. Istnieje kilka wartości odstających powyżej 40 mln PLN.
-
+Całkowicie umeblowane mieszkania: Mediana ceny wynosi również około 25
+mln PLN. Zakres międzykwartylny jest szeroki, z pierwszym kwartylem
+poniżej 20 mln PLN i trzecim kwartylem powyżej 30 mln PLN, co wskazuje
+na dużą zmienność cen. Istnieje kilka wartości odstających powyżej 40
+mln PLN.
 
 ## ggplot2 plots
 
-W tym rozdziale przedstawimy te same wykresy, ale z wykorzystaniem pakietów ***ggplot2*** i ***ggpubr***.
+W tym rozdziale przedstawimy te same wykresy, ale z wykorzystaniem
+pakietów ***ggplot2*** i ***ggpubr***.
 
 ```{r histogram2, echo=FALSE}
 library(dplyr)
@@ -1099,9 +1120,12 @@ ggarrange(density.p, stable.p, text.p,
 
 ```
 
-
-Ggplot2 pozwala na pokazanie średniej wartości dla każdej grupy. 
-Wykres przedstawia rozkład cen mieszkań w zależności od ich umeblowania: nieumeblowane, średnio umeblowane i umeblowane. Mieszkania umeblowane są zazwyczaj droższe, co widać po wyższej średniej cenie. Wykres gęstości pokazuje znaczne pokrywanie się cen pomiędzy różnymi kategoriami, co wskazuje na różnorodność cen w ramach każdego statusu umeblowania.
+Ggplot2 pozwala na pokazanie średniej wartości dla każdej grupy. Wykres
+przedstawia rozkład cen mieszkań w zależności od ich umeblowania:
+nieumeblowane, średnio umeblowane i umeblowane. Mieszkania umeblowane są
+zazwyczaj droższe, co widać po wyższej średniej cenie. Wykres gęstości
+pokazuje znaczne pokrywanie się cen pomiędzy różnymi kategoriami, co
+wskazuje na różnorodność cen w ramach każdego statusu umeblowania.
 
 ```{r boxplot2, echo=FALSE}
 
@@ -1124,13 +1148,19 @@ ggplot(dane_analiza, aes(x=mainroad, y=price)) +
 
 ```
 
+Wykres przedstawia rozkład cen nieruchomości (price) w zależności od ich
+bliskości do głównej drogi (mainroad), z podziałem na preferowane i
+niepreferowane obszary. Czerwone punkty reprezentują średnią cenę dla
+każdej kategorii. Wydaje się, że średnia cena nieruchomości jest wyższa,
+gdy nieruchomość znajduje się blisko głównej drogi, niezależnie od
+preferencji obszaru.
 
-Wykres przedstawia rozkład cen nieruchomości (price) w zależności od ich bliskości do głównej drogi (mainroad), z podziałem na preferowane i niepreferowane obszary. Czerwone punkty reprezentują średnią cenę dla każdej kategorii. Wydaje się, że średnia cena nieruchomości jest wyższa, gdy nieruchomość znajduje się blisko głównej drogi, niezależnie od preferencji obszaru.
-
-Wydaje się, że jest mniej nieruchomości w preferowanym obszarze, które nie mają dostępu do głównej drogi (mainroad=0). Można to interpretować jako wskazówkę, że większość nieruchomości w preferowanych obszarach ma dostęp do głównej drogi. 
+Wydaje się, że jest mniej nieruchomości w preferowanym obszarze, które
+nie mają dostępu do głównej drogi (mainroad=0). Można to interpretować
+jako wskazówkę, że większość nieruchomości w preferowanych obszarach ma
+dostęp do głównej drogi.
 
 ## Grupowanie grafik
-
 
 ```{r facet1, echo=FALSE}
 plot702 <- ggplot(dane, aes(price, bathrooms)) + 
@@ -1139,39 +1169,51 @@ plot702 <- ggplot(dane, aes(price, bathrooms)) +
 plot702 + facet_wrap(~furnishingstatus)
 
 ```
-Wykres przedstawia zależność między ceną nieruchomości (price) a liczbą łazienek (bathrooms), z podziałem na status umeblowania (furnishingstatus). Czarne punkty reprezentują poszczególne nieruchomości. Dla nieruchomości “nieumeblowane” i “średnio umeblowane”, ceny generalnie rosną wraz ze wzrostem liczby łazienek. Dla nieruchomości “umeblowane”, ceny wydają się być podobne niezależnie od liczby łazienek, ale są generalnie wyższe w porównaniu do innych kategorii umeblowania.
 
+Wykres przedstawia zależność między ceną nieruchomości (price) a liczbą
+łazienek (bathrooms), z podziałem na status umeblowania
+(furnishingstatus). Czarne punkty reprezentują poszczególne
+nieruchomości. Dla nieruchomości "nieumeblowane" i "średnio umeblowane",
+ceny generalnie rosną wraz ze wzrostem liczby łazienek. Dla
+nieruchomości "umeblowane", ceny wydają się być podobne niezależnie od
+liczby łazienek, ale są generalnie wyższe w porównaniu do innych
+kategorii umeblowania.
 
 ## Statystyki opisowe
 
 ```{r}
 summary(dane)
 ```
-**price** - Średnia cena badanych nieruchomości to 19.1 mln PLN. Dla połowy nieruchomości cena nie przekracza 17.36 mln PLN Najniższa zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. 
-**area** - Średnia powierzchnia to 478.5 m2. Najmniejsza nieruchomość ma powierzchnię 153.3 m2 a największa 1503 m2. Dla połowy nieruchomości powierzchnia nie przekracza 427.4m2. 
-**bedrooms** - Nieruchomości mają od 1 do 6 sypialni, połowa z nich nie ma więcej niż 3 sypialnie. 
-**bathrooms** - Nieruchomości mają od 1 do 4 łazienki, jednak połowa z nich ma jedynie 1 łazienkę
-**stories** - Nieruchomości mają od 1 do 4 pięter, połowa z nich nie ma więcej niż 2 pięter. 
-**mainroad** - Większość nieruchomości ma dostęp do drogi głównej. 
-**guestroom** - Większość nieruchomości nie posiada pokoju gościnnego. 
-**basement** - Większość nieruchomości nie posiada piwnicy
-**hotwaterheating** - Większość nieruchomości nie ma systemu podgrzewania wody
-**airconditioning** - Większość nieruchomości nie ma klimatyzacji 
-**parking** - Nieruchomości mają liczbę miejsc parkingowych od 0 do 3 jednak większość z nich, nie posiada miejsca parkingowego. 
-**furnishingstatus** - Istnieje 178 nieruchomości nieumeblowanych, 227 nieruchomości średnio umeblowanych, oraz 140 nieruchomości całkowicie umeblowanych. 
 
-
+**price** - Średnia cena badanych nieruchomości to 19.1 mln PLN. Dla
+połowy nieruchomości cena nie przekracza 17.36 mln PLN Najniższa
+zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. **area** -
+Średnia powierzchnia to 478.5 m2. Najmniejsza nieruchomość ma
+powierzchnię 153.3 m2 a największa 1503 m2. Dla połowy nieruchomości
+powierzchnia nie przekracza 427.4m2. **bedrooms** - Nieruchomości mają
+od 1 do 6 sypialni, połowa z nich nie ma więcej niż 3 sypialnie.
+**bathrooms** - Nieruchomości mają od 1 do 4 łazienki, jednak połowa z
+nich ma jedynie 1 łazienkę **stories** - Nieruchomości mają od 1 do 4
+pięter, połowa z nich nie ma więcej niż 2 pięter. **mainroad** -
+Większość nieruchomości ma dostęp do drogi głównej. **guestroom** -
+Większość nieruchomości nie posiada pokoju gościnnego. **basement** -
+Większość nieruchomości nie posiada piwnicy **hotwaterheating** -
+Większość nieruchomości nie ma systemu podgrzewania wody
+**airconditioning** - Większość nieruchomości nie ma klimatyzacji
+**parking** - Nieruchomości mają liczbę miejsc parkingowych od 0 do 3
+jednak większość z nich, nie posiada miejsca parkingowego.
+**furnishingstatus** - Istnieje 178 nieruchomości nieumeblowanych, 227
+nieruchomości średnio umeblowanych, oraz 140 nieruchomości całkowicie
+umeblowanych.
 
 ```{r}
 describe(dane)
 ```
 
-
-
 ## Podsumowanie opisu danych
 
-
 zmierzenie tendencji centralnej rozkładu cen
+
 ```{r kable_report, echo=FALSE}
 library(kableExtra)
 
@@ -1210,8 +1252,8 @@ inline_plot %>%
 
 ```
 
-
-Podsumowanie podstawowych miar tendencji centralnej dla cen według liczby sypialni
+Podsumowanie podstawowych miar tendencji centralnej dla cen według
+liczby sypialni
 
 ```{r kable_report2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(psych)
@@ -1240,7 +1282,7 @@ knitr::kable(tabela,
   col.names = c("Statystyka","1 sypialnia", "2 sypialnie", "3 sypialnie", "4 sypialnie", "5 sypialnie", "6 sypialnie")) 
 ```
 
-Drugi sposob: 
+Drugi sposob:
 
 ```{r}
 library(gtsummary)
@@ -1272,7 +1314,13 @@ corrplot(corr_matrix, method="color")
 
 ```
 
-Analiza korelacji na wykresie ukazuje powiązania pomiędzy ceną a rozmiarem mieszkania, ilością sypialni, łazienek oraz liczbą pięter. Najwyższa korelacja występuje między ceną a powierzchnią (0.54) oraz ceną a ilością łazienek (0.52), co sugeruje, że istnieje umiarkowany dodatni związek między tymi zmiennymi. Innymi słowy, wzrost ceny często idzie w parze z większą powierzchnią mieszkania i większą liczbą łazienek.
+Analiza korelacji na wykresie ukazuje powiązania pomiędzy ceną a
+rozmiarem mieszkania, ilością sypialni, łazienek oraz liczbą pięter.
+Najwyższa korelacja występuje między ceną a powierzchnią (0.54) oraz
+ceną a ilością łazienek (0.52), co sugeruje, że istnieje umiarkowany
+dodatni związek między tymi zmiennymi. Innymi słowy, wzrost ceny często
+idzie w parze z większą powierzchnią mieszkania i większą liczbą
+łazienek.
 
 # 4. Wnioskowanie (testy statystyczne)
 
@@ -1294,6 +1342,7 @@ legend("topright", legend = c("Histogram", "Density", "Normal Distribution"), co
 
 
 ```
+
 ## Jednorodność wariancji
 
 ```{r}
@@ -1303,16 +1352,31 @@ var(dane$area)
 ##40647.65
 var.test(dane$price, dane$area, alternative="greater")  
 ```
-Wynik testu wariancji sugeruje, że istnieją istotne różnice w wariancjach między grupami (p < 0,05). Ponadto, wartość F jest bardzo niska (0.0013771), co sugeruje, że wariancje między grupami są bardzo małe w porównaniu do wariancji wewnątrzgrupowej. Możemy więc wnioskować, że wariancje między grupami są istotnie różne, co może mieć istotne konsekwencje dla analizy statystycznej.
 
-## Test Wilcoxona 
+Wynik testu wariancji sugeruje, że istnieją istotne różnice w
+wariancjach między grupami (p \< 0,05). Ponadto, wartość F jest bardzo
+niska (0.0013771), co sugeruje, że wariancje między grupami są bardzo
+małe w porównaniu do wariancji wewnątrzgrupowej. Możemy więc wnioskować,
+że wariancje między grupami są istotnie różne, co może mieć istotne
+konsekwencje dla analizy statystycznej.
+
+## Test Wilcoxona
+
 ```{r}
 wilcox.test(dane$price, dane$area)
 
 ```
-Test Wilcoxona dla porównania między zmiennymi price (cena) i area (powierzchnia) wykazał bardzo istotną różnicę pomiędzy grupami. Wartość p-value jest bardzo niska (< 2.2e-16), co oznacza, że istnieje istotna różnica w rozkładach obu zmiennych. Alternatywna hipoteza zakłada, że prawdziwa różnica w lokalizacji (medianie) między grupami nie wynosi zero. Wartość statystyki testowej W wynosi 0, co sugeruje, że wartość testu Wilcoxona jest bardzo niska, co oznacza, że rozkłady między zmiennymi różnią się znacząco.
 
-##Shapiro test dla zmiennej price
+Test Wilcoxona dla porównania między zmiennymi price (cena) i area
+(powierzchnia) wykazał bardzo istotną różnicę pomiędzy grupami. Wartość
+p-value jest bardzo niska (\< 2.2e-16), co oznacza, że istnieje istotna
+różnica w rozkładach obu zmiennych. Alternatywna hipoteza zakłada, że
+prawdziwa różnica w lokalizacji (medianie) między grupami nie wynosi
+zero. Wartość statystyki testowej W wynosi 0, co sugeruje, że wartość
+testu Wilcoxona jest bardzo niska, co oznacza, że rozkłady między
+zmiennymi różnią się znacząco.
+
+## Shapiro test dla zmiennej price
 
 ```{r}
 shapiro_test <- shapiro.test(dane$price)
@@ -1325,7 +1389,7 @@ zmienna price nie pochodzi z rozkładu normalnego. Wartość p równa
 3.155e-16 jest znacznie mniejsza niż 0,05, co sugeruje, że istnieją
 istotne odstępstwa od normalności.
 
-##Shapiro test dla zmiennej area
+## Shapiro test dla zmiennej area
 
 ```{r}
 shapiro_test_area <- shapiro.test(dane$area)
@@ -1337,10 +1401,9 @@ statystycznie różnicę od rozkładu normalnego (p \< 0,05). Wartość p jest
 bardzo bliska zeru (mniejsza niż 2.2e-16), co oznacza, że istnieją
 istotne odstępstwa od normalności.
 
-##Testy porównawcze
+# Testy porównawcze
 
-#Test T-studenta porównujący średnie ceny dla nieruchomości z i bez
-klimatyzacji
+## Test T-studenta porównujący średnie ceny dla nieruchomości z i bez klimatyzacji
 
 ```{r}
 library(stats)
@@ -1349,7 +1412,7 @@ print(t_test_result)
 ```
 
 Wynik testu t-studenta wskazuje na istotną statystycznie różnicę między
-grupami z i bez klimatyzacji (p \< 0,05).
+nieruchomościami z i bez klimatyzacji (p \< 0,05).
 
 Wartość t = -10.659 oznacza, że istnieje istotna różnica między średnimi
 cenami nieruchomości w grupach z i bez klimatyzacji. df (stopnie
@@ -1365,7 +1428,7 @@ klimatyzacją wynosi 24.05. W związku z tym można stwierdzić, że istnieje
 istotna różnica w cenach nieruchomości między grupami z i bez
 klimatyzacji, przy czym ceny nieruchomości z klimatyzacją są wyższe.
 
-##Test anova dla zmiennej pokoje
+## Test anova dla zmiennej pokoje
 
 ```{r}
 anova_result <- aov(price ~ bedrooms, data = dane)
@@ -1397,9 +1460,7 @@ ggplot(df, aes(x = "", y = count, fill = furnishingstatus)) +
   labs(title = "Udział rodzaju umeblowania")  # Dodajemy tytuł
 ```
 
-
-
-##Badanie rozkładu ilości sypialni względen ceny nieruchomości
+## Badanie rozkładu ilości sypialni względen ceny nieruchomości
 
 ```{r}
 set.seed(545)
@@ -1419,7 +1480,7 @@ Mieszkania o większej ilosci pokoi mają niższy rozkład cen, na co
 wpływać może również obecność innych udogodnień takich jak preferowana
 okolica, dostęp do piwnicy bądź też klimatyzacja.
 
-##Wizualizacja##
+## Wizualizacja
 
 ```{r}
 ggscatterstats(
@@ -1441,7 +1502,18 @@ są wyższe niż tych mniejszych.
 *Badanie udziału mieszkań na rynku posiadających dostęp do drogi
 głównej*
 
-
 # 5. Podsumowanie i wnioski końcowe
 
-
+Dane które zostały przeanaliwane zawarte w zbiorze danych dotyczyły
+nieruchomosci z agencji nieruchomości. W wielu przypadkach więcej nie
+oznaczało lepiej pod względem cenowym. Jak się okazuje najdroższe
+nieruchomości nie posiadały maksymalnej liczby sypialni czy też pięter
+bądź łazienek. Na cenę zdecydowanie miało wpływ umeblowanie oraz
+klimatyzacja. Dane były bardzo dokładne oraz "czyste" o czym świadczy
+chociażby brak brakujących obserwacji czy poprawny zapis danych.
+Najliczniejszą grupą nieruchomości były te, które posiadały mniej niż 3
+sypialnie. Średnia powierzchnia nieruchomości wynosiła 478,5 m\^2.
+Większość nieruchomości nie posiadała piwnic. Dość logiczną, aczkolwiek
+wartą podkreślenia obserwacją był fakt, że brak podłączenia drogi
+głównej do nieruchomości obniżał wartość nieruchomości względem tych,
+kóre wspomniany dostep posiadały.
