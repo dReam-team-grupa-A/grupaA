@@ -868,17 +868,12 @@ przypadku sypialni najczęściej w nieruchomościach znajdują się 3.
 library(dplyr)
 library(ggplot2)
 
-#Tworzenie kategorii cen i powierzchni oraz obliczanie liczby obserwacji w każdej kategorii
 dane_proporcje <- dane %>%
-
-#library(tidyverse)
-#???
-# Podział zmiennych "price" i "area" na przedziały
-dane %>%
   mutate(price_category = cut(price, breaks = 3),
          area_category = cut(area, breaks = 3)) %>%
   count(price_category, area_category) %>%
   mutate(percentage = n / sum(n))
+
 
 #Tworzenie wizualizacji proporcji dla każdej kategorii
 ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percentage)) +
@@ -887,7 +882,6 @@ ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percent
   labs(x = "price", y = "area", fill = "Proporcje (%)") +
   theme_minimal() +
   ggtitle("Proporcje w zależności od ceny i powierzchni")
-
 
 ```
 
