@@ -74,6 +74,7 @@ if (!require(frequency)) install.packages("frequency")
 library(frequency)
 if (!require(ggpubr)) install.packages("ggpubr")
 library(ggpubr)
+library(gridExtra)
 ```
 
 # Wstep
@@ -833,6 +834,20 @@ wykres <- wykres + ggplot2::theme_minimal()
 wykres <- wykres + ggplot2::labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna)", title = "Proporcje zmiennych w zbiorze danych")
 
 print(wykres)
+
+dane %>%
+  gather(key = "variable", value = "value", -price, -area) %>%
+  group_by(variable, value) %>%
+  summarise(n = n()) %>%
+  mutate(percentage = n / sum(n)) -> dane_wiz
+
+#Stwórz wykres
+ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~variable, scales = "free", ncol = 4)
+  theme_minimal() +
+  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna",
+       title = "Proporcje zmiennych w zbiorze danych")
 ```
 
 Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz
@@ -856,6 +871,11 @@ library(ggplot2)
 
 #Tworzenie kategorii cen i powierzchni oraz obliczanie liczby obserwacji w każdej kategorii
 dane_proporcje <- dane %>%
+
+#library(tidyverse)
+#???
+# Podział zmiennych "price" i "area" na przedziały
+dane %>%
   mutate(price_category = cut(price, breaks = 3),
          area_category = cut(area, breaks = 3)) %>%
   count(price_category, area_category) %>%
@@ -1092,8 +1112,18 @@ ggplot(dane, aes(x=mainroad, y=price)) +
     facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
     scale_fill_brewer(palette="Set1")
 
+#???
+
+ggplot(dane_analiza, aes(x=mainroad, y=price)) +
+    geom_boxplot(alpha=0.7) +
+    stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
+    geom_jitter() +
+    facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
+    scale_fill_brewer(palette="Set1")
+
 
 ```
+
 
 Wykres przedstawia rozkład cen nieruchomości (price) w zależności od ich bliskości do głównej drogi (mainroad), z podziałem na preferowane i niepreferowane obszary. Czerwone punkty reprezentują średnią cenę dla każdej kategorii. Wydaje się, że średnia cena nieruchomości jest wyższa, gdy nieruchomość znajduje się blisko głównej drogi, niezależnie od preferencji obszaru.
 
@@ -1243,7 +1273,6 @@ corrplot(corr_matrix, method="color")
 ```
 
 Analiza korelacji na wykresie ukazuje powiązania pomiędzy ceną a rozmiarem mieszkania, ilością sypialni, łazienek oraz liczbą pięter. Najwyższa korelacja występuje między ceną a powierzchnią (0.54) oraz ceną a ilością łazienek (0.52), co sugeruje, że istnieje umiarkowany dodatni związek między tymi zmiennymi. Innymi słowy, wzrost ceny często idzie w parze z większą powierzchnią mieszkania i większą liczbą łazienek.
-
 
 # 4. Wnioskowanie (testy statystyczne)
 
@@ -1414,3 +1443,5 @@ głównej*
 
 
 # 5. Podsumowanie i wnioski końcowe
+
+
