@@ -42,8 +42,8 @@ if (!require(kableExtra)) install.packages("kableExtra")
 library(kableExtra)
 if (!require(outliers)) install.packages("outliers")
 library(outliers)
-#if (!require(htmltools)) install.packages("htmltools")
-#library(htmltools)
+if (!require(htmltools)) install.packages("htmltools")
+library(htmltools)
 if (!require(Hmisc)) install.packages("Hmisc")
 library(Hmisc)
 if (!require(psych)) install.packages("psych")
@@ -56,18 +56,24 @@ if (!require(ggforce)) install.packages("ggforce")
 library(ggforce)
 if (!require(knitr)) install.packages("knitr")
 library(knitr)
-
-#------------------
+if (!require(arsenal)) install.packages("arsenal")
 library(arsenal)
+if (!require(e1071)) install.packages("e1071")
 library(e1071)
+if (!require(haven)) install.packages("haven")
 library(haven)
+if (!require(papeR)) install.packages("papeR")
 library(papeR)
+if (!require(classInt)) install.packages("classInt")
 library(classInt)
+if (!require(pastecs)) install.packages("pastecs")
 library(pastecs)
+if (!require(desctable)) install.packages("desctable")
 library(desctable)
+if (!require(frequency)) install.packages("frequency")
 library(frequency)
+if (!require(ggpubr)) install.packages("ggpubr")
 library(ggpubr)
-
 ```
 
 # Wstep
@@ -417,6 +423,7 @@ trendów.
 ## Wizualizacja zmiennych - histogramy
 
 ```{r}
+library(gridExtra)
 # histogramy dla zmiennych ilościowych
 plot1 <- ggplot(dane, aes(x = area)) + 
   geom_histogram(colour = "black", fill = "#FFFF99", bins = 10) +
@@ -811,20 +818,21 @@ im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość.
 ## Wizualizacja proporcji
 
 ```{r}
-dane %>%
-  gather(key = "variable", value = "value", -price, -area) %>%
-  group_by(variable, value) %>%
-  summarise(count = n_distinct()) %>%
-  mutate(percentage = count / sum(count)) -> dane_wiz
+library(dplyr)   
+library(ggplot2) 
+dane_wiz <- dane
+dane_wiz <- reshape2::melt(dane_wiz, id.vars = c("price", "area"))
+dane_wiz <- dplyr::count(dane_wiz, variable, value)
+dane_wiz <- dplyr::mutate(dane_wiz, percentage = n / sum(n))
 
-# Stwórz wykres
-ggplot(dane_wiz, aes(x = value, y = percentage, fill = variable)) +
-  geom_col(position = "dodge") +
-  facet_wrap(~variable, scales = "free", ncol = 4) +
-  theme_minimal() +
-  labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna)",
-       title = "Proporcje zmiennych w zbiorze danych")
+#Stwórz wykres
+wykres <- ggplot2::ggplot(dane_wiz, ggplot2::aes(x = value, y = percentage, fill = variable))
+wykres <- wykres + ggplot2::geom_bar(stat = "identity", position = "dodge")
+wykres <- wykres + ggplot2::facet_wrap(~variable, scales = "free", ncol = 4)
+wykres <- wykres + ggplot2::theme_minimal()
+wykres <- wykres + ggplot2::labs(x = "Wartości", y = "Proporcja (%)", fill = "Zmienna (kolumna)", title = "Proporcje zmiennych w zbiorze danych")
 
+print(wykres)
 ```
 
 Powyższa wizualizacja proporcji nie uwzględnia zmiennej price oraz
@@ -843,17 +851,17 @@ zauwazamy, że trendują mieszkania posiadające jedną łazienkę, w
 przypadku sypialni najczęściej w nieruchomościach znajdują się 3.
 
 ```{r}
-#library(tidyverse)
+library(dplyr)
+library(ggplot2)
 
-# Podział zmiennych "price" i "area" na przedziały
-dane %>%
+#Tworzenie kategorii cen i powierzchni oraz obliczanie liczby obserwacji w każdej kategorii
+dane_proporcje <- dane %>%
   mutate(price_category = cut(price, breaks = 3),
          area_category = cut(area, breaks = 3)) %>%
-  group_by(price_category, area_category) %>%
-  summarise(n = n()) %>%
-  mutate(percentage = n / sum(n)) -> dane_proporcje
+  count(price_category, area_category) %>%
+  mutate(percentage = n / sum(n))
 
-# Stworzenie wizualizacji proporcji dla każdej kategorii
+#Tworzenie wizualizacji proporcji dla każdej kategorii
 ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percentage)) +
   geom_tile() +
   scale_fill_gradient(low = "lightblue", high = "darkblue") +
@@ -867,7 +875,7 @@ ggplot(dane_proporcje, aes(x = price_category, y = area_category, fill = percent
 Powyższa mapa cieplna jest wizualizacją proporcji zmiennych price i
 area. Oś x przedstawia ceny (price z podzialem na 3 przedziały,
 natomiast oś y przedstawia zmienną area również z podziałem na 3
-przedziały. Większość danych (około 80%) dotyczy nieruchomości o
+przedziały. Większość danych dotyczy nieruchomości o
 średniej cenie i sredniej powierzchni. Najmniej danych (blisko 0%)
 dotyczy nieruchomości o niskiej cenie i dużej powierzchni oraz o
 wysokiej cenie i małej powierzchni.
@@ -1076,6 +1084,7 @@ Ggplot2 pozwala na pokazanie średniej wartości dla każdej grupy.
 Wykres przedstawia rozkład cen mieszkań w zależności od ich umeblowania: nieumeblowane, średnio umeblowane i umeblowane. Mieszkania umeblowane są zazwyczaj droższe, co widać po wyższej średniej cenie. Wykres gęstości pokazuje znaczne pokrywanie się cen pomiędzy różnymi kategoriami, co wskazuje na różnorodność cen w ramach każdego statusu umeblowania.
 
 ```{r boxplot2, echo=FALSE}
+
 ggplot(dane, aes(x=mainroad, y=price)) +
     geom_boxplot(alpha=0.7) +
     stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
