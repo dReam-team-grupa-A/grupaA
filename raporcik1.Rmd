@@ -56,8 +56,6 @@ if (!require(ggforce)) install.packages("ggforce")
 library(ggforce)
 if (!require(knitr)) install.packages("knitr")
 library(knitr)
-if (!require(psych)) install.packages("psych")
-library(psych)
 
 
 
