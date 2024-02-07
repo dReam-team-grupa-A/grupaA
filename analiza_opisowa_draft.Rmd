@@ -1,0 +1,90 @@
+---
+title: "analiza_opisowa_draft"
+output: html_document
+date: "2024-02-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+options(qwraps2_markup = "markdown")
+library(qwraps2)
+library(arsenal)
+library(e1071)
+library(haven)
+library(papeR)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(kableExtra)
+library(summarytools)
+library(classInt)
+library(pastecs)
+library(desctable)
+library(frequency)
+library(corrplot)
+library(ggpubr)
+
+
+library(readxl) 
+dane_analiza <- read.csv("agencja_nieruchomosci.csv")
+```
+ 
+# walidacja danych - do usuniecia pozniej bo to to samo co bylo wczesniej
+
+```{r}
+# zamiana yes/no na 1/0
+dane_analiza$mainroad <- ifelse(dane_analiza$mainroad == 'yes', 1, 0)
+dane_analiza$guestroom  <- ifelse(dane_analiza$guestroom  == 'yes', 1, 0)
+dane_analiza$basement  <- ifelse(dane_analiza$basement  == 'yes', 1, 0)
+dane_analiza$hotwaterheating  <- ifelse(dane_analiza$hotwaterheating  == 'yes', 1, 0)
+dane_analiza$airconditioning  <- ifelse(dane_analiza$airconditioning  == 'yes', 1, 0)
+dane_analiza$prefarea  <- ifelse(dane_analiza$prefarea  == 'yes', 1, 0)
+```
+
+```{r}
+# Zamiana wartości w kolumnie 'furnishingstatus'
+dane_analiza$furnishingstatus <- ifelse(dane_analiza$furnishingstatus == 'unfurnished', 0,
+                                  ifelse(dane_analiza$furnishingstatus == 'semi-furnished', 1,
+                                         ifelse(dane_analiza$furnishingstatus == 'furnished', 2, NA)))
+
+```
+
+```{r}
+# Kurs wymiany
+kurs_wymiany <- 4.00
+# 1USD=4.00PLN na dzien 4/02/2024
+
+# Przeliczenie cen z dolarów na złote
+dane_analiza$price <- dane_analiza$price * kurs_wymiany
+
+```
+
+
+
+```{r}
+# Współczynnik konwersji z stóp kwadratowych na metry kwadratowe
+wspolczynnik_konwersji <- 0.092903
+
+# Przeliczenie powierzchni z stóp kwadratowych na metry kwadratowe
+dane_analiza$area <- dane_analiza$area * wspolczynnik_konwersji
+```
+
+```{r}
+# przeliczenia wartości zmiennej price 
+dane_analiza <- dane_analiza %>%
+  mutate(price = price/10^6)
+```
+
+```{r}
+str(dane_analiza)
+str(dane)
+```
+# koniec przygotowania danych 
+
+# Analiza opisowa 
+
+
