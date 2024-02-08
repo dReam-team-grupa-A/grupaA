@@ -7,7 +7,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r ustawienia, include=FALSE}
 knitr::opts_chunk$set(
 	echo = TRUE,
 	message = FALSE,
@@ -351,7 +351,7 @@ bardziej uważana za odstającą.
 Identyfikacja obserwacji odstających w danych liczbowych przy założeniu,
 że wartość bezwzględna wieksza niż 3:
 
-```{r odstajace3, echo=TRUE}}
+```{r odstajace3, echo=TRUE}
 kolumny <- c("price", "area", "bedrooms", "bathrooms", "stories", "parking")
 conditions <- as.data.frame(lapply(dane[, kolumny], function(x) abs(scale(x)) > 3))
 summary(conditions)
@@ -466,7 +466,7 @@ zmienne jakościowe.
 
 ## Jakościowe zmienne objaśniające
 
-```{r zmienne_objasniajace, echo=TRUE}}
+```{r zmienne_objasniajace, echo=TRUE}
 # wykres słupkowy dla zmiennej mainroad
 tab <- as.data.frame(100*prop.table(table(dane$mainroad)))
 plot1 <- ggplot(tab, aes(x = Var1, y = Freq)) + 
@@ -880,7 +880,7 @@ sredniej powierzchni. Najmniej danych (blisko 0%) dotyczy nieruchomości
 o niskiej cenie i dużej powierzchni oraz o wysokiej cenie i małej
 powierzchni.
 
-```{r bombelkowy, echo=TRUE}}
+```{r bombelkowy, echo=TRUE}
 
 
 dane %>%
@@ -1109,15 +1109,6 @@ wskazuje na różnorodność cen w ramach każdego statusu umeblowania.
 ```{r boxplot2, echo=FALSE}
 
 ggplot(dane, aes(x=mainroad, y=price)) +
-    geom_boxplot(alpha=0.7) +
-    stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
-    geom_jitter() +
-    facet_grid(~factor(prefarea, labels = c("Obszar niepreferowany", "Obszar preferowany"))) +
-    scale_fill_brewer(palette="Set1")
-
-#???
-
-ggplot(dane_analiza, aes(x=mainroad, y=price)) +
     geom_boxplot(alpha=0.7) +
     stat_summary(fun="mean", geom="point", shape=20, size=5, color="red", fill="red") +
     geom_jitter() +
