@@ -81,9 +81,7 @@ library(gridExtra)
 
 ## Opis problemu
 
-Przedmiotem rozważań niniejszego opracowania są ceny wybranych
-nieruchomości. Celem badania jest wyselekcjonowanie czynników mogących
-istotnie wpływać na cenę domu.
+Przedmiotem rozważań niniejszego opracowania jest analiza danych dotycząca zbioru nierchomości. Celem badania jest wyselekcjonowanie czynników mogących istotnie wpływać na cenę domu.
 
 ## Baza danych
 
@@ -98,6 +96,11 @@ dane <- read.csv("agencja_nieruchomosci.csv")
 # wyświetlenie pierwszych wierszy danych
 kable(head(dane))
 ```
+
+Powyższa tabela przedstawia dane pierwszych szcześciu nieruchmości. Ma to na celu zapoznanie się z ogólną postacią posiadanych danych. Widzimy, że zmienne price, area, bedrooms, stories, parking są numeryczne, natomiast zmienne takie jak: mianroad, guestroom, basement, hotwaterheating, airconditioning są zmiennymi logicznymi przyjmącymi formę yes/no; zmienna furnishingstatus jest zmienną  kategoryczną.
+
+Poniżej przedstawiamy, ogólne informacje dotyczące zmiennych:
+
 
 ## Zmienne
 
@@ -136,6 +139,7 @@ Dane poddane analizie zawieraja ponizsze zmienne:
 # struktura danych 
 str(dane)
 ```
+Powyższa funkcja str w porównaniu do wcześniejszej kable, przedstawia dodatkowo informacje dotyczące liczby obserwacji oraz liczby zmiennych.
 
 # 1. Data Cleansing, Wrangling
 
@@ -198,10 +202,13 @@ wspolczynnik_konwersji <- 0.092903
 dane$area <- dane$area * wspolczynnik_konwersji
 ```
 
+Ponownie została użyta funkcja str() w celu weryfikacji, czy dane po przekształceniu posiadają oczekiwane formy. 
+
 ```{r struktura_danych2, echo=TRUE}
 # ponowne wyswietlenie struktura danych 
 str(dane)
 ```
+Tak, dane posiadają oczekiwane formy, zmienne yes/no, zostały zamienione na wartości 1/0, wartości zmiennej furnishingstatus zostały zamienione na wartości liczbowe w strukturze: unfurnished - "0" semi-furnished - "1" furnished - "2"; Zmienna dotycząca cen nieruchomości została przeliczona z cen w dolarach na ceny w polskich złotych, natomiast metraż został przeliczony z stóp kwadratowych na metry kwadratowej. 
 
 ### Sprawdzenie czy występują brakujące dane
 
@@ -245,6 +252,7 @@ if (czy_duplikaty) {
   print("Brak duplikatów w danych.")
 }
 ```
+W zbiorze nie występują duplikaty danych.
 
 Sprawdzamy czy w zbiorze danych wystepuja wartosci ujemne. W zadnej
 zmiennej wartosci nie powinny byc ujemne.
@@ -261,10 +269,15 @@ if (czy_sa_ujemne) {
 }
 
 ```
+W zbiorze nie występują ujemne wartości.
 
 ## Dane odstające
 
 ### Sprawdzenie obserwacji odstających -jednowymiarowe
+
+W tym rozdziale przeprowadzamy analizę danych w celu identyfikacji obserwacji odstających w poszczególnych zmiennych. Do tego celu wykorzystujemy wykresy pudełkowe (boxplot), które pozwalają wizualizować rozkład wartości oraz wykrywać wartości odstające w zbiorze danych.
+
+Poniższy kod wykonuje generowanie wykresów pudełkowych dla wszystkich zmiennych numerycznych w ramce danych. Dodatkowo, oznacza wartości odstające na wykresie punktowym kolorowymi punktami. Dzięki temu można szybko zidentyfikować potencjalne odstępstwa w danych i podjąć dalsze kroki w celu ich zrozumienia.
 
 ```{r odstajace1, echo=TRUE}
 
@@ -312,6 +325,10 @@ parkingowymi.
 
 Poniżej przygotowano wykresy rozrzutu dla posiadanych danych.
 
+W tym rozdziale przeprowadzamy analizę danych w celu identyfikacji obserwacji odstających przy użyciu wykresu punktowego. Wykres ten pozwala nam zobaczyć wzorce i relacje pomiędzy zmiennymi numerycznymi w ramce danych.
+
+Poniższy kod generuje wykres punktowy dla wszystkich zmiennych numerycznych w ramce danych. Dodatkowo, oznacza obserwacje odstające na wykresie za pomocą czerwonych punktów. Dzięki temu możemy szybko zidentyfikować nietypowe lub błędne wartości w danych i podjąć dalsze kroki w celu ich zrozumienia lub usunięcia.
+
 ```{r odstajace2, echo=TRUE}
 # Stworzenie wykresu punktowego (scatterplot matrix) z dostosowanymi parametrami
 par(mfrow = c(1, 1), mar = c(2, 2, 2, 2))  # Ustawienie jednego obszaru wykresu i marginesów
@@ -348,6 +365,7 @@ Zielone paski wskazują, w jakim stopniu każda obserwacja jest uważana za
 odstającą dla każdej zmiennej; wyższe paski wskazują, że obserwacja jest
 bardziej uważana za odstającą.
 
+
 Identyfikacja obserwacji odstających w danych liczbowych przy założeniu,
 że wartość bezwzględna wieksza niż 3:
 
@@ -373,6 +391,7 @@ Parking: brak wartosci odstajacych - wszystkie nieruchomosci maja
 podobna liczbe miejsc parkingowych
 
 ### Test Grubbsa (test T)
+W celu dalszej analizy i potwierdzenia obserwacji odstających, przeprowadzamy test Grubbsa (test T). Test ten pozwoli nam sprawdzić, czy istnieją wartości odstające w zmiennej price (cena) w naszych danych.
 
 ```{r test_grubbsa, echo=TRUE}
 #Test Grubbsa dla zmiennej price (cena)
@@ -423,6 +442,9 @@ trendów.
 
 ## Wizualizacja zmiennych ilościowych
 
+W celu lepszego zrozumienia rozkładu zmiennych ilościowych w naszych danych, generujemy histogramy dla poszczególnych zmiennych. Histogramy te pomagają nam zobaczyć, jak często występują różne wartości oraz jak rozkładają się obserwacje na osi liczbowej dla poszczególnych cech.
+
+
 ```{r ilosciowe, echo=TRUE}
 library(gridExtra)
 # histogramy dla zmiennych ilościowych
@@ -465,6 +487,11 @@ tak małym zakresie osiąganych wartości można je też potraktować jak
 zmienne jakościowe.
 
 ## Jakościowe zmienne objaśniające
+
+W tym rozdziale analizujemy zmienne objaśniające wśród zbioru nieruchomości. Dla każdej zmiennej przeprowadzamy analizę procentową, aby zobaczyć jak często występują różne kategorie w danych.
+
+Poniższy kod generuje wykresy słupkowe dla kilku zmiennych objaśniających, w tym: mainroad, guestroom, basement, hotwaterheating, airconditioning, prefarea, oraz furnishingstatus.
+
 
 ```{r zmienne_objasniajace, echo=TRUE}
 # wykres słupkowy dla zmiennej mainroad
@@ -565,6 +592,7 @@ grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, plot7, nrow = 4)
 Mamy duże dysproporcje w rozkładzie kategorii poszczególnych zmiennych.
 
 ## Wizualizacja rozkładów
+Wizualizacja rozkładów jest kluczowa dla zrozumienia charakterystyki danych. W tym dziale omówimy różne metody wizualizacji, takie jak histogramy czy wykresy gęstości, które pomagają zobaczyć kształt i właściwości rozkładu danych. Dzięki tym narzędziom jesteśmy w stanie ocenić istotność posiadanych danych.
 
 ### Histogramy rozkładu cen nieruchomości względem zmiennych
 
@@ -816,6 +844,8 @@ umeblowane w pełni. Analizując również ceny tych nieruchomości widać, że
 im bardziej mieszkanie jest umeblowane tym wyższa jest jego wartość.
 
 ## Wizualizacja proporcji
+Wizualizacja proporcji przedstawia różne rodzej wykresów, m.in. wykres słupkowy, wykres bąbelkowy, etc. mające na celu przedstawienie zależności między różnymi zmiennymi. Wykresy te przedstawiają proporcje zmiennych.
+
 
 ```{r proporcje, echo=TRUE}
 library(dplyr)   
@@ -880,7 +910,7 @@ sredniej powierzchni. Najmniej danych (blisko 0%) dotyczy nieruchomości
 o niskiej cenie i dużej powierzchni oraz o wysokiej cenie i małej
 powierzchni.
 
-```{r bombelkowy, echo=TRUE}
+```{r babelkowy, echo=TRUE}
 
 
 dane %>%
@@ -894,7 +924,7 @@ dane %>%
 
 ```
 
-Powyższy wykres pnktowy, wizualizuje zależność między ceną a
+Powyższy wykres punktowy, wizualizuje zależność między ceną a
 powierzchnią nieruchomości. Rozmiar punktów reprezentuje liczbę
 sypialni, a kolor wskazuje na liczbę łazienek. Możemy zauważyć, że
 istnieje koncentracja nieruchomości o niższych cenach i mniejszych
@@ -931,6 +961,8 @@ prefarea, furnishingstatus.
 
 ## Data wragling dla rozdziału dot. analizy opisowej
 
+Poniższy kod ma na celu przekształcenie danych na formaty numeryczne, aby umożliwić przeprowadzenie dalszej analizy.
+
 ```{r wrangling, include=TRUE}
 # Przekształcenie danych jakościowych
 dane$mainroad <- as.numeric(dane$mainroad) 
@@ -953,6 +985,8 @@ dane$parking <- as.numeric(dane$parking)
 
 ## Wizualizacja zmiennej price
 
+Poniższy wykres słupkowy przedstawia rozkład cen mieszkań.
+
 ```{r wizualizacja_price, echo=TRUE}
 # Tworzenie wykresu słupkowego
 wykres_slupkowy <- ggplot(dane, aes(x = price)) +
@@ -964,6 +998,8 @@ wykres_slupkowy <- ggplot(dane, aes(x = price)) +
 print(wykres_slupkowy)
  
 ```
+
+Na podstawie wykresy, jesteśmy w stanie stwierdzić, iż dostępne jest znacznie więcej nieruchomości poniżej 30 mln PLN niż w przedziale powyżej 30 mln PLN. 
 
 Za pomocą Metody Sturgesa, wyznaczamy przedziały dla zmiennej price
 
@@ -981,13 +1017,17 @@ table(przedzialy)
 
 ```
 
+Powyższa Metoda Sturgesa pozwoliła nam na wyznaczenie przedziałów dla zmiennej price, które zostaną wykorzystane w tabeli liczności oraz TAI przedstawione poniżej.
+
 ## Tabele liczności oraz TAI
 
-W pierwszym etapie naszej analizy pogrupujemy dane na 3 przedziały w
-postać tabeli częstości.
+Metoda Sturgesa wyznaczyła nam 11 przedziałów zastosowane w poniższym kodzie. 
 
-A następnie przygotujemy rozkład cen mieszkań w naszej próbie i
-zweryfikujmy poprawność tabelaryczną za pomocą miary TAI:
+W rozdziale tym analizujemy ceny mieszkań, wykorzystując technikę TAI (Tabela Aktywności Informacyjnej).
+
+W pierwszym fragmencie kodu dokonujemy przekształcenia cen mieszkań na zakresy cenowe. Następnie generowana jest tabela liczności przedstawiająca liczbę mieszkań w poszczególnych przedziałach cenowych.
+
+W drugim fragmencie kodu prezentujemy tabelę liczności w czytelnej formie, a także przeprowadzamy analizę zależności między cenami mieszkań a ich występowaniem w różnych przedziałach cenowych przy użyciu techniki TAI.
 
 ```{r TAI, echo=TRUE}
 # Przekształcenie cen mieszkań na zakresy zgodne z projektem2
@@ -998,7 +1038,7 @@ tabela2 <- freq(limits_projekt2, type = "html")
 ```
 
 ```{r TAI2, echo=TRUE}
-kbl(tabela2, caption = "Mieszkania we Wrocławiu - ceny w PLN - Projekt2") %>%
+kbl(tabela2, caption = "Mieszkania - ceny w PLN") %>%
     kable_material(c("striped", "hover"))
 tab2 <- classIntervals(dane$price, n = 11, style = "fixed", fixedBreaks = c(6.95, 11.2, 15.4, 19.6, 23.8, 28, 32.2, 36.4, 40.6, 44.8, 49, 53.2))
 jenks.tests(tab2)
@@ -1151,24 +1191,30 @@ kategorii umeblowania.
 
 ## Statystyki opisowe
 
+W dziale dotyczącym statystyki opisowej, skupiamy się na analizie i prezentacji podstawowych charakterystyk danych. Statystyka opisowa umożliwia zrozumienie podstawowej struktury danych oraz  cech ich rozkładu.
+
+Poniższy chunk przedstawia podsumowanie głównych statystyk dla poszczególnych zmiennych w zbiorze danych. Jest to szybki sposób na uzyskanie ogólnego oglądu danych, obejmujący m.in. średnie, mediany, wartości minimalne i maksymalne oraz kwartyle.
+
 ```{r summary_chunk, echo=TRUE}
 summary(dane)
 ```
 
 **price** - Średnia cena badanych nieruchomości to 19.1 mln PLN. Dla
 połowy nieruchomości cena nie przekracza 17.36 mln PLN Najniższa
-zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. **area** -
-Średnia powierzchnia to 478.5 m2. Najmniejsza nieruchomość ma
+zaobserwowana wartość to 7, a najwyższa aż 53.2 mln dolarów. 
+**area** - Średnia powierzchnia to 478.5 m2. Najmniejsza nieruchomość ma
 powierzchnię 153.3 m2 a największa 1503 m2. Dla połowy nieruchomości
-powierzchnia nie przekracza 427.4m2. **bedrooms** - Nieruchomości mają
+powierzchnia nie przekracza 427.4m2. 
+**bedrooms** - Nieruchomości mają
 od 1 do 6 sypialni, połowa z nich nie ma więcej niż 3 sypialnie.
 **bathrooms** - Nieruchomości mają od 1 do 4 łazienki, jednak połowa z
-nich ma jedynie 1 łazienkę **stories** - Nieruchomości mają od 1 do 4
-pięter, połowa z nich nie ma więcej niż 2 pięter. **mainroad** -
-Większość nieruchomości ma dostęp do drogi głównej. **guestroom** -
-Większość nieruchomości nie posiada pokoju gościnnego. **basement** -
-Większość nieruchomości nie posiada piwnicy **hotwaterheating** -
-Większość nieruchomości nie ma systemu podgrzewania wody
+nich ma jedynie 1 łazienkę
+**stories** - Nieruchomości mają od 1 do 4
+pięter, połowa z nich nie ma więcej niż 2 pięter. 
+**mainroad** - Większość nieruchomości ma dostęp do drogi głównej.
+**guestroom** - Większość nieruchomości nie posiada pokoju gościnnego.
+**basement** - Większość nieruchomości nie posiada piwnicy
+**hotwaterheating** - Większość nieruchomości nie ma systemu podgrzewania wody 
 **airconditioning** - Większość nieruchomości nie ma klimatyzacji
 **parking** - Nieruchomości mają liczbę miejsc parkingowych od 0 do 3
 jednak większość z nich, nie posiada miejsca parkingowego.
@@ -1176,13 +1222,21 @@ jednak większość z nich, nie posiada miejsca parkingowego.
 nieruchomości średnio umeblowanych, oraz 140 nieruchomości całkowicie
 umeblowanych.
 
+
+Funkcja describe w przeciwieństwie do funkcji summmary jest bardziej szczegółowa i dostarcza informacje takie jak: odchylenie standardowe, skośność, kurtozę oraz inne miary opisowe.
+
 ```{r describe_chunk, echo=TRUE}
 describe(dane)
 ```
+Funkcja describe() może być stosowana zarówno do zmiennych ilościowych, jak i jakościowych. Jednakże, dla zmiennych jakościowych, describe() dostarcza jedynie podstawowych informacji, takich jak liczba unikalnych wartości i częstość wystąpień poszczególnych poziomów (częstości). Dla zmiennych ilościowych, funkcja ta zwraca bardziej szczegółowe statystyki opisowe, takie jak średnia, mediana, odchylenie standardowe, skośność, kurtoza itp. 
+
+W przyadku analizowanych danych zmienne ilościowe to zmienne: price, area, bedrooms, bathrooms, stories, parking.
 
 ## Podsumowanie opisu danych
 
 zmierzenie tendencji centralnej rozkładu cen
+
+W tym fragmencie kodu przeprowadziłyśmy analizę cen mieszkań w zależności od liczby sypialni. Najpierw dane są sortowane według liczby sypialni, a następnie grupowane. Tworzona jest ramka danych, która jest podstawą dla tabeli prezentującej różne aspekty rozkładu cen. Następnie kod oblicza tendencje centralne dla cen mieszkań, takie jak średnia, mediana i moda. Na koniec tworzona jest tabela zawierająca wykresy pudełkowe, histogramy i wykresy liniowe dla poszczególnych grup cenowych.
 
 ```{r kable_report, echo=FALSE}
 library(kableExtra)
@@ -1225,36 +1279,11 @@ inline_plot %>%
 Podsumowanie podstawowych miar tendencji centralnej dla cen według
 liczby sypialni
 
-```{r kable_report2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-library(psych)
-raport <-
-  list("Cena w PLN" =
-       list("Min"= ~ min(price),
-            "Max"= ~ max(price),
-            "Kwartyl dolny"= ~ quantile(price,0.25),
-            "Mediana"= ~ round(median(price),2),
-            "Kwartyl górny"= ~ quantile(price,0.75),
-            "Średnia"= ~ round(mean(price),2),
-            "Odch. std."= ~ round(sd(price),2),
-            "IQR"= ~ round(iqr(price),2),
-            "Odchylenie ćwiartkowe"=~round(iqr(price)/2,2),
-            "Odch. std. w %"=~round((sd(price)/mean(price)),2),
-            "Odch. ćwiartkowe w %"=~round((iqr(price)/median(price)),2),
-            "Skośność"=~round(skew(price),2),
-            "Kurtoza"=~round(kurtosi(price),2)
-            ))
-tabela<-summary_table(dane, summaries = raport, by = c("bedrooms"))
 
-knitr::kable(tabela,
-  digits = 2,
-  align = "lcccc",
-  caption="Tabela 1. Mieszkania- ceny w mln PLN wg liczby sypialni",
-  col.names = c("Statystyka","1 sypialnia", "2 sypialnie", "3 sypialnie", "4 sypialnie", "5 sypialnie", "6 sypialnie")) 
-```
+W poniższym fragmencie kodu wykorzystujemy pakiet gtsummary do wygenerowania tabeli podsumowującej rozkład cen mieszkań w zależności od liczby sypialni. Tabela zawiera podstawowe statystyki opisowe dla zmiennej price, takie jak średnia, odchylenie standardowe, mediana, kwartyle, minimum i maksimum, grupowane według liczby sypialni.
 
-Drugi sposob:
 
-```{r drugi, echo=TRUE}
+```{r tabela_sypialnie_miara, echo=TRUE}
 library(gtsummary)
 dane %>%
   select(price,bedrooms) %>%
@@ -1273,7 +1302,19 @@ dane %>%
   add_p(pvalue_fun = ~ style_pvalue(.x, digits = 2))
 ```
 
+**1 sypialnia**: Średnia cena wynosi 11, z odchyleniem standardowym 2. Mediana wynosi 11, a zakres cen to od 9 do 13.
+**2 sypialnie**: Średnia cena wynosi 15, z odchyleniem standardowym 4. Mediana wynosi 14, a zakres cen to od 7 do 28.
+**3 sypialnie**: Średnia cena wynosi 20, z odchyleniem standardowym 7. Mediana wynosi 18, a zakres cen to od 7 do 49.
+**4 sypialnie**: Średnia cena wynosi 23, z odchyleniem standardowym 9. Mediana wynosi 21, a zakres cen to od 8 do 53.
+**5 sypialnie**: Średnia cena wynosi 23, z odchyleniem standardowym 10. Mediana wynosi 22, a zakres cen to od 8 do 41.
+
+Wynik testu Kruskala-Wallisa jest mniejszy niż 0,001, co wskazuje na istotne statystycznie różnice w cenach między różnymi kategoriami liczby sypialni. W związku z tym, liczba sypialni ma wpływ na cenę mieszkania.
+
+
 ## Macierze korelacji
+
+Poniższy chunk ma na celu analizę korelacji między pierwszymi czterema zmiennymi w zbiorze danych. Wykorzystujemy funkcję cor() do obliczenia macierzy korelacji między tymi zmiennymi, a następnie generujemy dwie wizualizacje za pomocą funkcji corrplot(). Pierwsza wizualizacja przedstawia wartości korelacji w postaci liczbowej, natomiast druga wizualizacja pokazuje macierz korelacji w formie kolorowej, co ułatwia analizę wzajemnych zależności między zmiennymi.
+
 
 ```{r bivariate, echo=FALSE, warning=TRUE}
 corrplot(cor(dane[,1:4]), method = "number", type = "upper", diag =FALSE)
@@ -1298,7 +1339,7 @@ W badaniu dotyczącym cen nieruchomości przeprowadzono szereg testów
 statystycznych, mających na celu zbadanie związków między cenami a
 różnymi zmiennymi, w tym powierzchnią mieszkania.
 
-##Test i wykresy normalności##\
+## Test i wykresy normalności
 H0: normalność rozkładu
 
 ```{r normalnosc, echo=TRUE}
@@ -1313,7 +1354,20 @@ legend("topright", legend = c("Histogram", "Density", "Normal Distribution"), co
 
 ```
 
+Powyższy wykres przedstawia histogram zmiennej price z nałożonymi krzywymi gęstości. Histogram pokazuje rozkład cen mieszkań, a krzywe gęstości pomagają ocenić, czy dane mają rozkład normalny.
+
+**Histogram:** Słupki histogramu reprezentują różne przedziały cen, a ich wysokość wskazuje na częstość występowania cen w danym przedziale. Wygląda na to, że większość cen mieszkań skupia się w dolnym przedziale cenowym, co sugeruje, że większość mieszkań ma niższą cenę.
+**Krzywa gęstości**: Niebieska linia reprezentuje krzywą gęstości danych. Pokazuje, że rozkład cen jest prawoskośny, co oznacza, że większość cen mieszkań jest niska, ale istnieje również pewna liczba mieszkań o wyższych cenach.
+**Rozkład normalny:** Czerwona linia reprezentuje teoretyczny rozkład normalny dla porównania. Wygląda na to, że rozkład cen nie jest normalny, ponieważ krzywa gęstości nie pokrywa się dobrze z czerwoną linią rozkładu normalnego.
+**Wynik testu Shapiro-Wilka: **
+Wartość W = 0.92163:(statystyka testu Shapiro-Wilka) Wartości bliskie 1 wskazują na to, że dane mają rozkład zbliżony do normalnego.
+p-value = 3.155e-16
+Ponieważ p-value jest znacznie mniejsze od 0,05 (typowego poziomu istotności), odrzucamy hipotezę zerową i wnioskujemy, że dane nie mają rozkładu normalnego.
+
+
 ## Jednorodność wariancji
+
+Poniżej zastosowana funkcja var() służy do obliczania wariancji próbki danych. Jest to miara rozproszenia danych, która określa, jak bardzo wartości w próbce danych rozpraszają się wokół średniej arytmetycznej. Pozwala nam określić, jak bardzo dane różnią się od średniej.
 
 ```{r jednorodnosc, echo=TRUE}
 var(dane$price)
@@ -1332,6 +1386,8 @@ konsekwencje dla analizy statystycznej.
 
 ## Test Wilcoxona
 
+Test Wilcoxona, to nieparametryczny test statystyczny wykorzystywany do porównywania dwóch niezależnych prób. Test ten jest używany, gdy nie spełnione są założenia normalności rozkładu danych lub równości wariancji, co dyskwalifikuje zastosowanie testów parametrycznych, takich jak test t-Studenta. Zamiast tego, test Wilcoxona opiera się na rangach danych, co sprawia, że jest bardziej odporny na odstępstwa od normalności.
+
 ```{r test_wilcoxona, echo=TRUE}
 wilcox.test(dane$price, dane$area)
 
@@ -1347,6 +1403,8 @@ testu Wilcoxona jest bardzo niska, co oznacza, że rozkłady między
 zmiennymi różnią się znacząco.
 
 ## Shapiro test dla zmiennej price
+
+Test Shapiro jest to test statystyczny używany do sprawdzania normalności rozkładu danych. Test ten ocenia, czy próbka pochodzi z populacji o rozkładzie normalnym, czy też nie.
 
 ```{r Shapiro, echo=TRUE}
 shapiro_test <- shapiro.test(dane$price)
@@ -1373,7 +1431,11 @@ istotne odstępstwa od normalności.
 
 # Testy porównawcze
 
+Celem tych testów jest ustalenie, czy istnieją istotne statystycznie różnice między badanymi grupami, próbami lub warunkami. 
+
 ## Test T-studenta porównujący średnie ceny dla nieruchomości z i bez klimatyzacji
+
+Test t-Studenta, test statystyczny wykorzystywany do porównywania średnich dwóch niezależnych prób. Jest stosowany w przypadku, gdy interesuje nas różnica między dwiema średnimi i mamy do czynienia z małymi próbkami oraz gdy założenia normalności rozkładu danych są spełnione. Test ten określa, czy różnice między średnimi są istotne statystycznie.
 
 ```{r test_t_student, echo=TRUE}
 library(stats)
@@ -1399,6 +1461,8 @@ istotna różnica w cenach nieruchomości między grupami z i bez
 klimatyzacji, przy czym ceny nieruchomości z klimatyzacją są wyższe.
 
 ## Test anova dla zmiennej pokoje
+
+Test anowa (inaczej, analiza wariancji) to test używany do porównywania średnich trzech lub więcej grup, prób lub warunków. Pozwala on określić, czy istnieją istotne statystycznie różnice między co najmniej dwoma grupami pod względem badanej zmiennej.
 
 ```{r test_anova, echo=TRUE}
 anova_result <- aov(price ~ bedrooms, data = dane)
@@ -1429,8 +1493,11 @@ ggplot(df, aes(x = "", y = count, fill = furnishingstatus)) +
   geom_text(aes(label = paste0(round(percent), "%")), position = position_stack(vjust = 0.5)) +  # Dodajemy etykiety procentowe
   labs(title = "Udział rodzaju umeblowania")  # Dodajemy tytuł
 ```
+W opracowywanym zbiorze danych istnieje 42% nieruchomości, które są średnio umeblowane i stanowią one największą grupę nieruchomości spośród badanych. 33% stanowią nieruchomości nieumeblowane, natomiast jedynie 26% to nieruchomości całkowicie umeblowane.
 
 ## Badanie rozkładu ilości sypialni względen ceny nieruchomości
+
+Wizualizacja rozkładu ilości sypialni względem ceny nieruchomości. Poniższy kod generuje wykresy porównawcze dla różnych zmiennych w ramach jednej analizy. W konkretnym przypadku, funkcja ggbetweenstats() tworzy wykres porównawczy pomiędzy ilością sypialni (zmienna niezależna) a ceną nieruchomości (zmienna zależna), co pozwala ocenić ewentualne związki między tymi zmiennymi.
 
 ```{r rozklad_ilosci_sypialni, echo=TRUE}
 set.seed(545)
@@ -1451,6 +1518,8 @@ wpływać może również obecność innych udogodnień takich jak preferowana
 okolica, dostęp do piwnicy bądź też klimatyzacja.
 
 ## Wizualizacja
+
+Wizualizacja zależności między ceną nieruchomości a jej powierzchnią. Wykorzystuje pakiet ggstatsplot, który umożliwia generowanie wykresów statystycznych. Funkcja ggscatterstats() tworzy wykres rozrzutu, który pozwala zobaczyć, czy istnieje jakakolwiek zależność lub wzorzec między ceną a powierzchnią nieruchomości. 
 
 ```{r wizualzacja_zaleznosci, echo=TRUE}
 ggscatterstats(
